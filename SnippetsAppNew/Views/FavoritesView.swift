@@ -44,7 +44,10 @@ struct FavoritesView: View {
                                         ScrollView{
                                             HStack(alignment: .center) {
                                                 ForEach(snippet.tags, id: \.self) { tag in
-                                                    TagView(tag: tag)
+                                                    TagView(
+                                                                                                                tag: tag,
+                                                                                                                hexColor: (snippet.tagBgColors?[tag])!
+                                                                                                            )
                                                         .padding(.top, 10)
 
                                                         

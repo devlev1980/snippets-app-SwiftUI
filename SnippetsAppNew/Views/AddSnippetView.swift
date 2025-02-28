@@ -19,29 +19,9 @@ struct AddSnippetView: View {
     @State private var index: Int = 0
     @State private var isLoading: Bool = false
     @State private var isChecked = false
+    @State private var tagBgColors: [String: String] = [:]
 
     @Environment(\.dismiss) var dismiss
-    
-    
-    let backgroundColors: [Color ] = [.blue, .green, .yellow, .orange, .pink,.indigo,.purple,.mint,.teal,.red,.orange,.black,.brown,.gray]
-    
-    
-    var backgroundHexColors: [String] = [
-            "#007AFF",  // blue
-            "#34C759",  // green
-            "#FFCC00",  // yellow
-            "#FF9500",  // orange
-            "#FF2D55",  // pink
-            "#5856D6",  // indigo
-            "#AF52DE",  // purple
-            "#00C7BE",  // mint
-            "#5AC8FA",  // teal
-            "#FF3B30",  // red
-            "#FF9500",  // duplicate orange
-            "#000000",  // black
-            "#A2845E",  // brown
-            "#8E8E93"   // gray
-        ]
     
     var body: some View {
         NavigationStack {
@@ -68,10 +48,12 @@ struct AddSnippetView: View {
                             ForEach(Array(snippetTags.enumerated()), id: \.element) { index, tag in
                                 
                                 HStack {
-                                    TagView(tag: tag)
-                                        .font(.caption)
-                                        .padding(.vertical,7)
-                                    
+                                    TagView(
+                                        tag: tag,
+                                        hexColor: ""
+                                    )
+                                    .font(.caption)
+                                 
                                     
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundColor(.indigo)
@@ -82,9 +64,8 @@ struct AddSnippetView: View {
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 5)
                                 .foregroundStyle(.indigo)
-                                .background(Color.indigo.opacity(0.3))
+                                .background(Color(hex: tagBgColors[tag] ?? "")?.opacity(0.3))
                                 .clipShape(.rect(cornerRadius: 10))
-                                
                                 
                             }
                         }
@@ -145,13 +126,14 @@ struct AddSnippetView: View {
     
     func addTag() {
         let trimmedTag = currentTag.trimmingCharacters(in: .whitespacesAndNewlines)
-       
         
         if !trimmedTag.isEmpty {
             snippetTags.append(trimmedTag)
+            let hexColor = viewModel.randomHexColor()
+            tagBgColors[trimmedTag] = hexColor
             viewModel.onAddTag(tag: trimmedTag)
             DispatchQueue.main.async {
-                currentTag = "" // Ensure the TextField is reset properly
+                currentTag = ""
             }
         }
     }
@@ -161,8 +143,8 @@ struct AddSnippetView: View {
     }
     func onSaveSnippet() {
         guard let currentUserEmail = Auth.auth().currentUser?.email else {
-               return
-           }
+            return
+        }
         let timestamp: Timestamp = .init()
         
         let newSnippet: Snippet = .init(
@@ -172,7 +154,8 @@ struct AddSnippetView: View {
             isFavorite: isChecked,
             tags: snippetTags,
             code: snippetCode,
-            userEmail: currentUserEmail
+            userEmail: currentUserEmail,
+            tagBgColors: tagBgColors
         )
         
         print("Snippet to add: \(newSnippet)")

@@ -89,8 +89,8 @@ class SnippetsViewModel  {
                               let tags = data["tags"] as? [String],
                               let isFavorite = data["isFavorite"] as? Bool,
                               let code = data["code"] as? String,
-                              let timestamp = data["timestamp"] as? Timestamp // ✅ Extract Firestore Timestamp
-                               else {
+                              let timestamp = data["timestamp"] as? Timestamp,
+                              let tagBgColors = data["tagBgColors"] as? [String: String] else {
                             print("Skipping document due to missing fields: \(doc.documentID)")
                             return nil
                         }
@@ -101,7 +101,7 @@ class SnippetsViewModel  {
                                                 isFavorite: isFavorite,
                                                 tags: tags,
                                                 code: code,
-                                              userEmail: userEmail, tagBgColor: self.backgroundColor)
+                                              userEmail: userEmail, tagBgColors: tagBgColors)
                           // Assign the document ID to the snippet.
                           return snippet
                     }
@@ -112,42 +112,50 @@ class SnippetsViewModel  {
     }
     @MainActor
     func addSnippet(snippet: Snippet) {
+        // Use the provided tagBgColors if available, otherwise generate new ones
+        var tagColors = snippet.tagBgColors ?? [:]
+        
+        // Generate colors for any tags that don't have them
+        for tag in snippet.tags {
+            if tagColors[tag] == nil {
+                tagColors[tag] = randomHexColor()
+            }
+        }
 
-           // Prepare data to be stored.
-           let snippetData: [String: Any] = [
-               "name": snippet.name,
-               "description": snippet.description,
-               "tags": snippet.tags,
-               "code": snippet.code,
-               "userEmail": snippet.userEmail,
-               "timestamp": snippet.timestamp,
-               "isFavorite": snippet.isFavorite,
-               "tagBgColor": snippet.tagBgColor ?? "#FFFFFF",
-               
-           ]
-           
-           let db = Firestore.firestore()
-           
-           // Create a mutable copy of the snippet so we can update its id.
-           var newSnippet = snippet
+        // Prepare data to be stored
+        let snippetData: [String: Any] = [
+            "name": snippet.name,
+            "description": snippet.description,
+            "tags": snippet.tags,
+            "code": snippet.code,
+            "userEmail": snippet.userEmail,
+            "timestamp": snippet.timestamp,
+            "isFavorite": snippet.isFavorite,
+            "tagBgColors": tagColors
+        ]
+        
+        let db = Firestore.firestore()
+        
+        // Create a mutable copy of the snippet so we can update its id.
+        var newSnippet = snippet
         var ref: DocumentReference? = nil
-           
-           // Add the snippet to Firestore.
-           ref = db.collection("SnippetsDB").addDocument(data: snippetData) { error in
-               DispatchQueue.main.async {
-                   if let error = error {
-                       self.errorMessage = "Error adding snippet: \(error.localizedDescription)"
-                       print("Error adding snippet: \(error.localizedDescription)")
-                   } else {
-                       // Capture and assign the document ID to the snippet.
+        
+        // Add the snippet to Firestore.
+        ref = db.collection("SnippetsDB").addDocument(data: snippetData) { error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    self.errorMessage = "Error adding snippet: \(error.localizedDescription)"
+                    print("Error adding snippet: \(error.localizedDescription)")
+                } else {
+                    // Capture and assign the document ID to the snippet.
 //                       newSnippet.id = ref?.documentID
-                       self.snippets.append(newSnippet)
-                       print("Snippet added successfully with ID: \(String(describing: ref?.documentID))")
-                       self.isLoading = false
-                       self.didAddSnippet = true // Trigger sheet dismissal or UI update.
-                   }
-               }
-           }
+                    self.snippets.append(newSnippet)
+                    print("Snippet added successfully with ID: \(String(describing: ref?.documentID))")
+                    self.isLoading = false
+                    self.didAddSnippet = true // Trigger sheet dismissal or UI update.
+                }
+            }
+        }
     }
     @MainActor
     func addFavorite(isFavorite: Bool,snippet: Snippet) {
@@ -302,5 +310,11 @@ class SnippetsViewModel  {
 //            }
     }
     
+    // Add this function to generate random hex color
+    func randomHexColor() -> String {
+        let color = backgroundColors.randomElement() ?? .indigo
+        let index = backgroundColors.firstIndex(of: color) ?? 0
+        return backgroundHexColors[index]
+    }
 }
 

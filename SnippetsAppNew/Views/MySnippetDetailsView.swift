@@ -51,7 +51,10 @@ struct MySnippetDetailsView: View {
                 
                 HStack {
                     ForEach(snippet.tags, id: \.self) { tag in
-                        TagView(tag: tag)
+                        TagView(
+                                                                                    tag: tag,
+                                                                                    hexColor: (snippet.tagBgColors?[tag])!
+                                                                                )
 
                         
                     }

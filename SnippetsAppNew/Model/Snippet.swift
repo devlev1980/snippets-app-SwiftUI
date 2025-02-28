@@ -18,7 +18,7 @@ struct Snippet : Identifiable {
     var isFavorite: Bool
     var tags: [String]
     var userEmail: String
-    var tagBgColor: Color?
+    var tagBgColors: [String: String]? // Map tag names to hex color strings
     
     init(
         name: String,
@@ -28,7 +28,7 @@ struct Snippet : Identifiable {
         tags: [String] = [],
         code: String,
         userEmail: String,
-        tagBgColor: Color? = nil
+        tagBgColors: [String: String]? = nil
     ) {
         self.name = name
         self.description = description
@@ -37,7 +37,7 @@ struct Snippet : Identifiable {
         self.tags = tags
         self.code = code
         self.userEmail = userEmail
-        self.tagBgColor = tagBgColor
+        self.tagBgColors = tagBgColors
     }
     
   

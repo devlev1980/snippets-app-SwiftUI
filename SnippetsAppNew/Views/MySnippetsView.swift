@@ -55,8 +55,10 @@ struct MySnippetsView: View {
                                             ScrollView(.horizontal, showsIndicators: false) {
                                                 HStack(alignment: .center) {
                                                     ForEach(snippet.tags, id: \.self) { tag in
-                                                        TagView(tag: tag)
-                                                            .padding(.top, 10)
+                                                       TagView(
+                                                            tag: tag,
+                                                            hexColor: (snippet.tagBgColors?[tag])!
+                                                        )
                                                     }
                                                 }
                                             }
