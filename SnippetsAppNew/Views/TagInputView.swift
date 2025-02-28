@@ -8,11 +8,26 @@
 import SwiftUI
 
 struct TagInputView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
+    @Binding var currentTag: String
+       var onAddTag: () -> Void
+       
+       var body: some View {
+           TextField(
+               "Press enter to add a new tag",
+               text: $currentTag,
+               onCommit: onAddTag // Triggers on Enter key press
+           )
+           .opacity(0.5)
+           .padding()
+           .overlay(
+               RoundedRectangle(cornerRadius: 10)
+                   .stroke(Color.gray, lineWidth: 0.3)
+           )
+           
+       }
 }
 
 #Preview {
-    TagInputView()
+   
+    TagInputView(currentTag: .constant("Angular"), onAddTag: {})
 }

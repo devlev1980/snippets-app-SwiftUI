@@ -8,11 +8,23 @@
 import SwiftUI
 
 struct TextFieldView: View {
+    let placeholder: String
+    @Binding var text: String
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        TextField(placeholder, text: $text)
+                    .opacity(0.5)
+                    .padding()
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.gray, lineWidth: 0.3)
+                    )
+                    .textInputAutocapitalization(.never)
     }
 }
 
 #Preview {
-    TextFieldView()
+    TextFieldView(
+        placeholder: "Email",
+        text: .constant("")
+    )
 }

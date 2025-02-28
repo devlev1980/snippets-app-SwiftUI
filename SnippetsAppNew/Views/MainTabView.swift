@@ -8,26 +8,59 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @State var vm : SnippetsViewModel = SnippetsViewModel()
+    @State private var showingAddSnippet = false
     var body: some View {
         TabView {
-            MySnippetsView()
-                .tabItem {
-                    Image(systemName: "doc.text") // Customize with your desired icon.
-                    Text("My snippets")
-                }
+            NavigationView {
+                MySnippetsView(vm: vm)
+                    .navigationTitle("My snippets")
+                    .navigationBarItems(trailing:
+                                            Image(systemName: "plus")
+                        .foregroundStyle(.indigo)
+                        .onTapGesture {
+                            showingAddSnippet = true
+                        }
+                      
+                    )
+            }
+            .tabItem {
+                Label("My snippets", systemImage: "doc.text")
+            }
+
+            NavigationView {
+                FavoritesView(vm: vm)
+                    .navigationTitle("Favorites")
+                  
+            }
+            .tabItem {
+                Label("Favorites", systemImage: "star.fill")
+            }
             
             
-            FavoritesView()
-                .tabItem {
-                    Image(systemName: "star.fill") // Customize with your desired icon.
-                    Text("Favorites")
-                }
+            NavigationView {
+                TagsView(vm: vm)
+                    .navigationTitle("Tags")
+                  
+            }
+            .tabItem {
+                Label("Tags", systemImage: "tag")
+            }
             
-            SettingsView()
-                .tabItem {
-                    Image(systemName: "gearshape.fill") // Customize with your desired icon.
-                    Text("Settings")
-                }
+            
+            NavigationView {
+                SettingsView()
+                    .navigationTitle("Settings")
+                   
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape.fill")
+            }
+        }
+        .tint(.indigo)
+        
+        .sheet(isPresented: $showingAddSnippet) {
+            AddSnippetView(viewModel: vm)
         }
     }
 }
