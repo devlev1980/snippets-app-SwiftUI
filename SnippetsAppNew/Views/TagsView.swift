@@ -11,7 +11,7 @@ struct TagsView: View {
     @State var vm: SnippetsViewModel // Ensure this is properly initialized
     @State private var selectedTag: String? // Track the selected tag
     @State private var showColorPicker: Bool = false // Control the color picker sheet
-    @State var choosenColor: String? = "#FFFFFF" // Default color as a hex string
+    @State private var choosenColor: String? = "#FFFFFF" // Default color as a hex string
     
     var body: some View {
         NavigationStack {
