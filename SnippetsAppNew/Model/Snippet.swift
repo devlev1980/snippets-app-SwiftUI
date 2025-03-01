@@ -14,6 +14,7 @@ struct Snippet : Identifiable {
     let name: String
     let description: String
     let code: String
+    var highlightedText: String?
     var timestamp: Timestamp
     var isFavorite: Bool
     var tags: [String]
@@ -27,6 +28,7 @@ struct Snippet : Identifiable {
         isFavorite: Bool = false,
         tags: [String] = [],
         code: String,
+        highlightedText: String? = nil,
         userEmail: String,
         tagBgColors: [String: String]? = nil
     ) {
@@ -36,6 +38,7 @@ struct Snippet : Identifiable {
         self.isFavorite = isFavorite
         self.tags = tags
         self.code = code
+        self.highlightedText = highlightedText
         self.userEmail = userEmail
         self.tagBgColors = tagBgColors
     }

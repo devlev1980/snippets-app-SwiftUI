@@ -62,7 +62,8 @@ struct MySnippetDetailsView: View {
                     }
                 }
                 ScrollView {
-                    Text(snippet.code)
+                    CodeEditorView(code: .constant(snippet.code), language: vm.selectedLanguage)
+//                    Text(snippet.code)
                         .font(.body)
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) :    Color.black.opacity(0.5))
                         .lineLimit(nil)

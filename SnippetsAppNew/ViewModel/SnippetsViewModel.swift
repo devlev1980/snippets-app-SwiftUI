@@ -20,6 +20,7 @@ class SnippetsViewModel  {
     var didAddSnippet: Bool = false
     var favoriteSnippets: [Snippet] = []
     var tags: [String] = []
+    var selectedLanguage: String?
     
     let backgroundColors: [Color ] = [.blue, .green, .yellow, .orange, .pink,.indigo,.purple,.mint,.teal,.red,.orange,.brown,.gray]
     
@@ -343,6 +344,10 @@ class SnippetsViewModel  {
                 }
             }
         }
+    }
+    
+    func setSelectedLanguage(language: String?) {
+        selectedLanguage = language
     }
 }
 

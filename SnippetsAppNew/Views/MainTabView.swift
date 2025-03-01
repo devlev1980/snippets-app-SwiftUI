@@ -70,7 +70,7 @@ struct MainTabView: View {
         .if(isIpad) { view in
             view.fullScreenCover(isPresented: $showingAddSnippet) {
                 NavigationView {
-                    AddSnippetView(viewModel: vm)
+                    AddSnippetView(viewModel: vm,selectedLanguage: "swift")
                         .toolbar {
                             ToolbarItem(placement: .primaryAction) {
                                 Button("Cancel") {
@@ -84,7 +84,7 @@ struct MainTabView: View {
         }
                .if(!isIpad) { view in
                    view.sheet(isPresented: $showingAddSnippet) {
-                       AddSnippetView(viewModel: vm)
+                       AddSnippetView(viewModel: vm,selectedLanguage: "swift")
                    }
                }
     }

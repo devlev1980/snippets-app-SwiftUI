@@ -48,7 +48,7 @@ struct TagsView: View {
                 )
                 
                 VStack {
-                    ColorPicker("Select Color", selection: bindingColor)
+                    ColorPicker("Choose tag color", selection: bindingColor)
                         .padding()
                     
                     Button("Save") {
@@ -58,6 +58,8 @@ struct TagsView: View {
                         showColorPicker = false
                     }
                     .padding()
+                    .buttonStyle(.borderedProminent)
+                    .tint(.indigo)
                 }
                 .presentationDetents([.height(200)])
             }

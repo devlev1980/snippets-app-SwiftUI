@@ -14,8 +14,10 @@
             filePath = "SnippetsAppNew/Views/AddSnippetView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "195"
-            endingLineNumber = "195">
+            startingLineNumber = "208"
+            endingLineNumber = "208"
+            landmarkName = "AddSnippetView"
+            landmarkType = "14">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -28,8 +30,10 @@
             filePath = "SnippetsAppNew/Views/AddSnippetView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "194"
-            endingLineNumber = "194">
+            startingLineNumber = "207"
+            endingLineNumber = "207"
+            landmarkName = "onSaveSnippet()"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -42,8 +46,8 @@
             filePath = "SnippetsAppNew/Views/AddSnippetView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "185"
-            endingLineNumber = "185"
+            startingLineNumber = "211"
+            endingLineNumber = "211"
             landmarkName = "AddSnippetView"
             landmarkType = "14">
          </BreakpointContent>
@@ -58,8 +62,8 @@
             filePath = "SnippetsAppNew/ViewModel/SnippetsViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "114"
-            endingLineNumber = "114"
+            startingLineNumber = "115"
+            endingLineNumber = "115"
             landmarkName = "fetchSnippets()"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,8 +78,8 @@
             filePath = "SnippetsAppNew/ViewModel/SnippetsViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "53"
-            endingLineNumber = "53"
+            startingLineNumber = "54"
+            endingLineNumber = "54"
             landmarkName = "fetchSnippets()"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,8 +94,8 @@
             filePath = "SnippetsAppNew/ViewModel/SnippetsViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "78"
-            endingLineNumber = "78"
+            startingLineNumber = "79"
+            endingLineNumber = "79"
             landmarkName = "fetchSnippets()"
             landmarkType = "7">
          </BreakpointContent>
@@ -106,8 +110,8 @@
             filePath = "SnippetsAppNew/ViewModel/SnippetsViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "153"
-            endingLineNumber = "153"
+            startingLineNumber = "154"
+            endingLineNumber = "154"
             landmarkName = "addSnippet(snippet:)"
             landmarkType = "7">
          </BreakpointContent>

@@ -31,6 +31,8 @@ struct SnippetsAppNewApp: App {
     
     init () {
         FirebaseApp.configure()
+        
+        
     }
     
     

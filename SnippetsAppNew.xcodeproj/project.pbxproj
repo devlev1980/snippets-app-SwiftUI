@@ -15,6 +15,7 @@
 		CBACA9CE2D68FC5900BA686F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = CBACA9CD2D68FC5900BA686F /* FirebaseStorage */; };
 		CBACAA162D69CEDD00BA686F /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = CBACAA152D69CEDD00BA686F /* GoogleSignIn */; };
 		CBACAA182D69CEDD00BA686F /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = CBACAA172D69CEDD00BA686F /* GoogleSignInSwift */; };
+		CBDF12022D736D6900F1714E /* Highlightr in Frameworks */ = {isa = PBXBuildFile; productRef = CBDF12012D736D6900F1714E /* Highlightr */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +84,7 @@
 				CBACA9C62D68FC5900BA686F /* FirebaseCore in Frameworks */,
 				CBACA9C42D68FC5900BA686F /* FirebaseAuth in Frameworks */,
 				CBACA9CE2D68FC5900BA686F /* FirebaseStorage in Frameworks */,
+				CBDF12022D736D6900F1714E /* Highlightr in Frameworks */,
 				CBACAA162D69CEDD00BA686F /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -152,6 +154,7 @@
 				CBACA9CD2D68FC5900BA686F /* FirebaseStorage */,
 				CBACAA152D69CEDD00BA686F /* GoogleSignIn */,
 				CBACAA172D69CEDD00BA686F /* GoogleSignInSwift */,
+				CBDF12012D736D6900F1714E /* Highlightr */,
 			);
 			productName = SnippetsAppNew;
 			productReference = CBACA9872D68F1BE00BA686F /* SnippetsAppNew.app */;
@@ -238,6 +241,7 @@
 			packageReferences = (
 				CBACA9C22D68FC5900BA686F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				CBACAA142D69CEDD00BA686F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				CBDF12002D736D6900F1714E /* XCRemoteSwiftPackageReference "Highlightr" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CBACA9882D68F1BE00BA686F /* Products */;
@@ -655,6 +659,14 @@
 				minimumVersion = 8.0.0;
 			};
 		};
+		CBDF12002D736D6900F1714E /* XCRemoteSwiftPackageReference "Highlightr" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/raspu/Highlightr.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -697,6 +709,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CBACAA142D69CEDD00BA686F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		CBDF12012D736D6900F1714E /* Highlightr */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CBDF12002D736D6900F1714E /* XCRemoteSwiftPackageReference "Highlightr" */;
+			productName = Highlightr;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

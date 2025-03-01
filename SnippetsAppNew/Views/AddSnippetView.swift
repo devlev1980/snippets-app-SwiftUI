@@ -20,6 +20,8 @@ struct AddSnippetView: View {
     @State private var isLoading: Bool = false
     @State private var isChecked = false
     @State private var tagBgColors: [String: String] = [:]
+    @State var selectedLanguage: String = ""
+    let options: [String] = ["swift", "python", "javascript", "java", "c++", "ruby", "go", "kotlin", "c#", "php", "bash", "sql", "typescript", "scss", "less", "html", "xml", "markdown", "json", "yaml", "dart", "rust", "swiftui", "objective-c", "kotlinxml", "scala", "elixir", "erlang", "clojure", "groovy", "swiftpm"]
 
     @Environment(\.dismiss) var dismiss
     
@@ -41,10 +43,30 @@ struct AddSnippetView: View {
                 
                 Text("Tags")
                 TagInputView(currentTag: $currentTag, onAddTag: addTag)
+                HStack {
+                    Toggle("Add to favorites", isOn: $isChecked)
+                        .toggleStyle(SwitchToggleStyle())
+                        .padding(.vertical, 5)
+                    Spacer()
+                    
+                    Picker("Select an option", selection: $selectedLanguage) {
+                                   ForEach(options, id: \.self) { option in
+                                       Text(option).tag(option)
+                                           .foregroundStyle(.indigo)
+                                   }
+                               }
+                               .pickerStyle(MenuPickerStyle())
+                               .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
+                               .tint(Color.indigo)
+                               .onChange(of: selectedLanguage) {
+                                   viewModel.setSelectedLanguage(language: selectedLanguage)
+                               }
+                    
+                    Spacer()
+                    
+                }
                 
-                Toggle("Favorite snippet", isOn: $isChecked)
-                    .toggleStyle(SwitchToggleStyle())
-                    .padding(.vertical, 10)
+              
                 
                 if !snippetTags.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -78,8 +100,11 @@ struct AddSnippetView: View {
                     }
                 }
                 
+                
+                
                 Text("Code")
-                TextEditor(text: $snippetCode)
+                CodeEditorView(code: $snippetCode,language: selectedLanguage)
+//                TextEditor(text: $snippetCode)
                     .frame(minHeight: 200)
                     .padding()
                     .overlay(
@@ -87,6 +112,7 @@ struct AddSnippetView: View {
                             .stroke(Color.indigo, lineWidth: 1)
                     )
                     .cornerRadius(10)
+                    .textInputAutocapitalization(.never)
                 
                 
                 Button {
@@ -111,7 +137,7 @@ struct AddSnippetView: View {
                 
                 .buttonStyle(.borderedProminent)
                 .tint(.indigo)
-                .padding(.top,isIpad ? 10 :  30)
+                .padding(.top,isIpad ? 10 :  10)
             }
             .padding()
             .onChange(of: viewModel.didAddSnippet) {
@@ -185,5 +211,5 @@ struct AddSnippetView: View {
 }
 
 #Preview {
-    AddSnippetView(viewModel: .init())
+    AddSnippetView(viewModel: .init(),selectedLanguage: "swift")
 }
