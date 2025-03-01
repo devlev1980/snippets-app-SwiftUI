@@ -15,66 +15,69 @@ struct MySnippetsView: View {
     var backgroundColor: Color {
         backgroundColors.randomElement() ?? .indigo
     }
-
+    
     var body: some View {
         NavigationStack {
-            if vm.isLoading {
-                ProgressView("Loading snippets...")
-            } else if !vm.errorMessage.isEmpty {
-                Text(vm.errorMessage)
-                    .foregroundColor(.red)
-            } else if vm.snippets.isEmpty {
-                Text("No snippets found 😢")
-            } else {
-                List {
-                    // Use ForEach so that we can attach the onDelete modifier.
-                    ForEach(vm.snippets, id: \.name) { snippet in
-                        NavigationLink {
-                            MySnippetDetailsView(vm: vm, navigateFrom: .mySnippetsView, snippet: snippet)
-                        } label: {
-                            VStack(alignment: .leading) {
-                                HStack(alignment: .top) {
-                                    Image("Logo")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 24, height: 24)
-
-                                    VStack(alignment: .leading) {
-                                        Text(snippet.name)
-                                            .font(.headline)
-                                        Text(snippet.description)
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
+            Group {
+                if vm.isLoading && vm.snippets.isEmpty {
+                    ProgressView("Loading snippets...")
+                } else if !vm.errorMessage.isEmpty {
+                    Text(vm.errorMessage)
+                        .foregroundColor(.red)
+                } else if vm.snippets.isEmpty {
+                    Text("No snippets found 😢")
+                } else {
+                    List {
+                        // Use ForEach so that we can attach the onDelete modifier.
+                        ForEach(vm.snippets, id: \.name) { snippet in
+                            NavigationLink {
+                                MySnippetDetailsView(vm: vm, navigateFrom: .mySnippetsView, snippet: snippet)
+                            } label: {
+                                VStack(alignment: .leading) {
+                                    HStack(alignment: .top) {
+                                        Image("Logo")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 24, height: 24)
                                         
-                                        HStack(alignment: .center) {
-                                            Image("Time")
-                                            Text(formatDate(date: snippet.timestamp))
-                                                .font(.caption)
-                                                .foregroundStyle(.gray.opacity(0.8))
+                                        VStack(alignment: .leading) {
+                                            Text(snippet.name)
+                                                .font(.headline)
+                                            Text(snippet.description)
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
                                             
-                                            ScrollView(.horizontal, showsIndicators: false) {
-                                                HStack(alignment: .center) {
-                                                    ForEach(snippet.tags, id: \.self) { tag in
-                                                       TagView(
-                                                            tag: tag,
-                                                            hexColor: (snippet.tagBgColors?[tag])!
-                                                        )
+                                            HStack(alignment: .center) {
+                                                Image("Time")
+                                                Text(formatDate(date: snippet.timestamp))
+                                                    .font(.caption)
+                                                    .foregroundStyle(.gray.opacity(0.8))
+                                                
+                                                ScrollView(.horizontal, showsIndicators: false) {
+                                                    HStack(alignment: .center) {
+                                                        ForEach(snippet.tags, id: \.self) { tag in
+                                                            TagView(
+                                                                tag: tag,
+                                                                hexColor: (snippet.tagBgColors?[tag])!
+                                                            )
+                                                        }
                                                     }
                                                 }
+                                                .scrollDisabled(shouldDisableScroll(for: snippet.tags))
                                             }
                                         }
                                     }
                                 }
                             }
                         }
+                        .onDelete(perform: delete)
                     }
-                    .onDelete(perform: delete)
                 }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            vm.fetchSnippets() // Fetch when view appears
+            vm.fetchSnippets()
         }
     }
     
@@ -88,6 +91,11 @@ struct MySnippetsView: View {
     func delete(at offsets: IndexSet) {
         print(offsets)
         vm.onDeleteSnippet(index: offsets)
+    }
+    
+    private func shouldDisableScroll(for tags: [String]) -> Bool {
+        // Disable scroll if there are few tags (you can adjust this number)
+        return tags.count <= 3
     }
 }
 

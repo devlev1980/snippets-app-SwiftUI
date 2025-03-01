@@ -21,7 +21,7 @@ class SnippetsViewModel  {
     var favoriteSnippets: [Snippet] = []
     var tags: [String] = []
     
-    let backgroundColors: [Color ] = [.blue, .green, .yellow, .orange, .pink,.indigo,.purple,.mint,.teal,.red,.orange,.black,.brown,.gray]
+    let backgroundColors: [Color ] = [.blue, .green, .yellow, .orange, .pink,.indigo,.purple,.mint,.teal,.red,.orange,.brown,.gray]
     
     
     var backgroundHexColors: [String] = [
@@ -36,7 +36,6 @@ class SnippetsViewModel  {
             "#5AC8FA",  // teal
             "#FF3B30",  // red
             "#FF9500",  // duplicate orange
-            "#000000",  // black
             "#A2845E",  // brown
             "#8E8E93"   // gray
         ]
@@ -46,11 +45,10 @@ class SnippetsViewModel  {
         backgroundColors.randomElement() ?? .indigo
     }
     
-    
-    
     @MainActor
     func fetchSnippets() {
         isLoading = true
+        
         guard let currentUserEmail = Auth.auth().currentUser?.email else {
             print("No user is signed in")
             self.errorMessage = "User not authenticated"
@@ -61,7 +59,7 @@ class SnippetsViewModel  {
         let db = Firestore.firestore()
         
         db.collection("SnippetsDB")
-            .whereField("userEmail", isEqualTo: currentUserEmail) // Filter by userEmail
+            .whereField("userEmail", isEqualTo: currentUserEmail)
             .getDocuments { snapshot, error in
                 Task { @MainActor in
                     self.isLoading = false
@@ -95,18 +93,31 @@ class SnippetsViewModel  {
                             return nil
                         }
  
-                        let snippet = Snippet(name: name,
+                        var snippet = Snippet(name: name,
                                                 description: description,
                                                 timestamp: timestamp,
                                                 isFavorite: isFavorite,
                                                 tags: tags,
                                                 code: code,
                                               userEmail: userEmail, tagBgColors: tagBgColors)
-                          // Assign the document ID to the snippet.
-                          return snippet
+                        snippet.id = doc.documentID
+                        return snippet
                     }
                     
+                    // After collecting unique tags, add this:
+                    // Update favoriteSnippets array with snippets where isFavorite is true
+                    self.favoriteSnippets = self.snippets.filter { $0.isFavorite }
+                    
+                    // After loading snippets, collect all unique tags
+                    var uniqueTags = Set<String>()
+                    for snippet in self.snippets {
+                        uniqueTags.formUnion(snippet.tags)
+                    }
+                    self.tags = Array(uniqueTags).sorted()
+                    
                     print("Snippets loaded: \(self.snippets.count)")
+                    print("Favorite snippets loaded: \(self.favoriteSnippets.count)")
+                    print("Unique tags found: \(self.tags.count)")
                 }
             }
     }
@@ -135,71 +146,76 @@ class SnippetsViewModel  {
         ]
         
         let db = Firestore.firestore()
-        
-        // Create a mutable copy of the snippet so we can update its id.
-        var newSnippet = snippet
-        var ref: DocumentReference? = nil
-        
+        var docRef : DocumentReference!
         // Add the snippet to Firestore.
-        ref = db.collection("SnippetsDB").addDocument(data: snippetData) { error in
+        docRef = db.collection("SnippetsDB").addDocument(data: snippetData) { error in
             DispatchQueue.main.async {
                 if let error = error {
                     self.errorMessage = "Error adding snippet: \(error.localizedDescription)"
                     print("Error adding snippet: \(error.localizedDescription)")
                 } else {
-                    // Capture and assign the document ID to the snippet.
-//                       newSnippet.id = ref?.documentID
+                    // Create a new snippet with the document ID
+                    var newSnippet = snippet
+                    newSnippet.id = docRef.documentID
                     self.snippets.append(newSnippet)
-                    print("Snippet added successfully with ID: \(String(describing: ref?.documentID))")
+                    print("Snippet added successfully with ID: \(docRef.documentID)")
                     self.isLoading = false
-                    self.didAddSnippet = true // Trigger sheet dismissal or UI update.
+                    self.didAddSnippet = true
                 }
             }
         }
     }
     @MainActor
-    func addFavorite(isFavorite: Bool,snippet: Snippet) {
-        guard let documentID = snippet.id else {
+    func addFavorite(isFavorite: Bool, snippet: Snippet) {
+        // First try to find the snippet in our local array to get the correct document ID
+        guard let existingSnippet = snippets.first(where: { $0.name == snippet.name }) else {
+            print("Error: Snippet not found in local array")
+            self.errorMessage = "Snippet not found in local array"
+            return
+        }
+        
+        guard let documentID = existingSnippet.id else {
             print("Error: Snippet does not have a valid document ID.")
             self.errorMessage = "Snippet document ID missing."
             return
         }
         
-        guard let chosenColor = backgroundColors.randomElement(),
-              let colorIndex = backgroundColors.firstIndex(of: chosenColor) else {
-            self.errorMessage = "Error selecting color for tag."
-            return
-        }
+        // Create a new snippet with the correct ID for the favorites array
+        var snippetWithId = snippet
+        snippetWithId.id = documentID
         
-        let hexColor = backgroundHexColors[colorIndex]
-        
-        // Prepare the updated data dictionary
+        // Prepare the updated data dictionary while preserving existing data
         let updatedData: [String: Any] = [
             "name": snippet.name,
             "description": snippet.description,
             "tags": snippet.tags,
             "code": snippet.code,
             "userEmail": snippet.userEmail,
-            "timestamp": hexColor,
-            "isFavorite": isFavorite
+            "timestamp": snippet.timestamp,
+            "isFavorite": isFavorite,
+            "tagBgColors": snippet.tagBgColors ?? [:]
         ]
         
         let db = Firestore.firestore()
         
-        // Update the document in the "SnippetsDB" collection using its document ID.
         db.collection("SnippetsDB").document(documentID).updateData(updatedData) { error in
             if let error = error {
                 print("Error updating snippet: \(error.localizedDescription)")
                 self.errorMessage = "Error updating snippet: \(error.localizedDescription)"
             } else {
                 print("Snippet updated successfully.")
-                if isFavorite {
-                    self.favoriteSnippets.append(snippet)
-                }else{
-                   self.favoriteSnippets.removeAll { $0.id == snippet.id }
+                // Update local arrays
+                if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
+                    self.snippets[index].isFavorite = isFavorite
                 }
-              
-                // Optionally, update your local snippets array if needed.
+                
+                if isFavorite {
+                    if !self.favoriteSnippets.contains(where: { $0.id == documentID }) {
+                        self.favoriteSnippets.append(snippetWithId)
+                    }
+                } else {
+                    self.favoriteSnippets.removeAll { $0.id == documentID }
+                }
             }
         }
     }
@@ -235,79 +251,9 @@ class SnippetsViewModel  {
     
     func onAddTag(tag: String) {
         tags.append(tag)
-        
-        // Randomly select a background color and determine its HEX value.
-//                guard let chosenColor = backgroundColors.randomElement(),
-//                      let colorIndex = backgroundColors.firstIndex(of: chosenColor) else {
-//                    self.errorMessage = "Error selecting color for tag."
-//                    return
-//                }
-//                
-//                let hexColor = backgroundHexColors[colorIndex]
-                
-                // Prepare the data to store in Firestore.
-//                let tagData: [String: Any] = [
-//                    "name": tag,
-//                    "backgroundColor": hexColor
-//                ]
-                
-                // Store the tag in the "TagsDB" collection.
-//                let db = Firestore.firestore()
-//        db.collection("TagsDB").addDocument(data: tagData) { error in
-//            DispatchQueue.main.async {
-//                if let error = error {
-//                    print("Error adding tag: \(error.localizedDescription)")
-//                    self.errorMessage = "Error adding tag: \(error.localizedDescription)"
-//                } else {
-//                    print("Tag added successfully with HEX color: \(hexColor)")
-//                }
-//            }
-//        }
-        
     }
     func onDeleteTag(at index: Int) {
         tags.remove(at: index)
-//            let db = Firestore.firestore()
-//            
-//            // Query Firestore for documents in "TagsDB" where the "name" matches.
-//            db.collection("TagsDB").whereField("name", isEqualTo: index).getDocuments { snapshot, error in
-//                if let error = error {
-//                    DispatchQueue.main.async {
-//                        self.errorMessage = "Error deleting tag: \(error.localizedDescription)"
-//                    }
-//                    return
-//                }
-//                
-//                guard let snapshot = snapshot, !snapshot.documents.isEmpty else {
-//                    // If no document is found, simply remove the tag locally.
-//                    DispatchQueue.main.async {
-//                        self.tags.remove(at: index)
-//                        print("No matching tag found in Firebase. Removed locally.")
-//                    }
-//                    return
-//                }
-//                
-//                // Use a dispatch group to wait for all deletion operations to complete.
-//                let deletionGroup = DispatchGroup()
-//                
-//                for document in snapshot.documents {
-//                    deletionGroup.enter()
-//                    document.reference.delete { err in
-//                        if let err = err {
-//                            DispatchQueue.main.async {
-//                                self.errorMessage = "Error deleting tag document: \(err.localizedDescription)"
-//                            }
-//                        }
-//                        deletionGroup.leave()
-//                    }
-//                }
-//                
-//                // Once all deletions are complete, remove the tag from the local array.
-//                deletionGroup.notify(queue: .main) {
-//                    self.tags.remove(at: index)
-//                    print("Tag '\(tagToDelete)' deleted successfully from Firebase.")
-//                }
-//            }
     }
     
     // Add this function to generate random hex color
@@ -315,6 +261,88 @@ class SnippetsViewModel  {
         let color = backgroundColors.randomElement() ?? .indigo
         let index = backgroundColors.firstIndex(of: color) ?? 0
         return backgroundHexColors[index]
+    }
+    
+    func getTagBackgroundColor(tag: String) -> String? {
+        // Look through all snippets to find the first occurrence of this tag
+        // and return its background color
+        for snippet in snippets {
+            if snippet.tags.contains(tag),
+               let color = snippet.tagBgColors?[tag] {
+                return color
+            }
+        }
+        return nil
+    }
+    
+    @MainActor
+    func deleteTag(tag: String) {
+        let db = Firestore.firestore()
+        
+        // Get all snippets that contain this tag
+        let snippetsToUpdate = snippets.filter { $0.tags.contains(tag) }
+        
+        for snippet in snippetsToUpdate {
+            guard let documentID = snippet.id else { continue }
+            
+            // Remove the tag from the tags array
+            let updatedTags = snippet.tags.filter { $0 != tag }
+            
+            // Remove the tag from tagBgColors
+            var updatedColors = snippet.tagBgColors ?? [:]
+            updatedColors.removeValue(forKey: tag)
+            
+            // Update Firestore
+            db.collection("SnippetsDB").document(documentID).updateData([
+                "tags": updatedTags,
+                "tagBgColors": updatedColors
+            ]) { error in
+                if let error = error {
+                    print("Error updating snippet: \(error.localizedDescription)")
+                } else {
+                    // Update local snippet
+                    if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
+                        self.snippets[index].tags = updatedTags
+                        self.snippets[index].tagBgColors = updatedColors
+                    }
+                }
+            }
+        }
+        
+        // Remove tag from local tags array
+        if let index = tags.firstIndex(of: tag) {
+            tags.remove(at: index)
+        }
+    }
+    
+    @MainActor
+    func updateTagColor(tag: String, color: String) {
+        let db = Firestore.firestore()
+        
+        // Get all snippets that contain this tag
+        let snippetsToUpdate = snippets.filter { $0.tags.contains(tag) }
+        
+        for snippet in snippetsToUpdate {
+            guard let documentID = snippet.id else { continue }
+            
+            // Update the tag color in the tagBgColors dictionary
+            var updatedColors = snippet.tagBgColors ?? [:]
+            updatedColors[tag] = color // Set the new color for the tag
+            
+            // Update Firestore
+            db.collection("SnippetsDB").document(documentID).updateData([
+                "tagBgColors": updatedColors
+            ]) { error in
+                if let error = error {
+                    print("Error updating tag color: \(error.localizedDescription)")
+                } else {
+                    // Update local snippet
+                    if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
+                        self.snippets[index].tagBgColors = updatedColors
+                    }
+                }
+            }
+        }
     }
 }
 

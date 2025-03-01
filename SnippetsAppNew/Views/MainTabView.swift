@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct MainTabView: View {
+    
+    private var isIpad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    
+    
     @State var vm : SnippetsViewModel = SnippetsViewModel()
     @State private var showingAddSnippet = false
     var body: some View {
@@ -59,9 +65,28 @@ struct MainTabView: View {
         }
         .tint(.indigo)
         
-        .sheet(isPresented: $showingAddSnippet) {
-            AddSnippetView(viewModel: vm)
+        
+        
+        .if(isIpad) { view in
+            view.fullScreenCover(isPresented: $showingAddSnippet) {
+                NavigationView {
+                    AddSnippetView(viewModel: vm)
+                        .toolbar {
+                            ToolbarItem(placement: .primaryAction) {
+                                Button("Cancel") {
+                                    showingAddSnippet = false
+                                }
+                                .tint(.indigo)
+                            }
+                        }
+                }
+            }
         }
+               .if(!isIpad) { view in
+                   view.sheet(isPresented: $showingAddSnippet) {
+                       AddSnippetView(viewModel: vm)
+                   }
+               }
     }
 }
 

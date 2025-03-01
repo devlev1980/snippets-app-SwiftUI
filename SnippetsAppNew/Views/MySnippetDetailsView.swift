@@ -9,6 +9,7 @@ import SwiftUI
 import FirebaseCore
 
 struct MySnippetDetailsView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State var vm: SnippetsViewModel
     @State var isBookmarked: Bool = false
     let navigateFrom: NavigateFromView
@@ -47,22 +48,23 @@ struct MySnippetDetailsView: View {
                     .font(.caption)
                     .foregroundStyle(Color.secondary)
                 
-              
+                
                 
                 HStack {
                     ForEach(snippet.tags, id: \.self) { tag in
                         TagView(
-                                                                                    tag: tag,
-                                                                                    hexColor: (snippet.tagBgColors?[tag])!
-                                                                                )
-
+                            tag: tag,
+                            hexColor: (snippet.tagBgColors?[tag])!
+                            
+                        )
+                        
                         
                     }
                 }
                 ScrollView {
                     Text(snippet.code)
                         .font(.body)
-                        .foregroundStyle(Color.black)
+                        .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) :    Color.black.opacity(0.5))
                         .lineLimit(nil)
                         .padding()
                         .frame(width: UIScreen.main.bounds.width * 0.95,height: 300)
@@ -76,9 +78,9 @@ struct MySnippetDetailsView: View {
                 }
                 .padding(.top,20)
                 Spacer()
-               
+                
             }
-         
+            
         }
         .padding()
     }
@@ -108,7 +110,7 @@ struct MySnippetDetailsView: View {
   export const detailsPattern = `^[a-zA-Zא-ת0-9!@#$%^&*()_+={}/\\':|,.?\\]\\["\\-\\n ]*$`;
 """
     let timestap: Timestamp = .init()
-
+    
     
     MySnippetDetailsView(
         vm: vm,

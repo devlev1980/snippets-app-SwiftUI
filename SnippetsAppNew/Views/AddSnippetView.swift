@@ -23,6 +23,10 @@ struct AddSnippetView: View {
 
     @Environment(\.dismiss) var dismiss
     
+    private var isIpad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    
     var body: some View {
         NavigationStack {
             
@@ -50,7 +54,8 @@ struct AddSnippetView: View {
                                 HStack {
                                     TagView(
                                         tag: tag,
-                                        hexColor: ""
+                                        hexColor: tagBgColors[tag] ?? ""
+                                        
                                     )
                                     .font(.caption)
                                  
@@ -106,7 +111,7 @@ struct AddSnippetView: View {
                 
                 .buttonStyle(.borderedProminent)
                 .tint(.indigo)
-                .padding(.top,50)
+                .padding(.top,isIpad ? 10 :  30)
             }
             .padding()
             .onChange(of: viewModel.didAddSnippet) {

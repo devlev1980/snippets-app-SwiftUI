@@ -8,8 +8,8 @@
 import SwiftUI
 import FirebaseCore
 struct FavoritesView: View {
-   @State var vm: SnippetsViewModel
-   
+    @State var vm: SnippetsViewModel
+    
     
     var body: some View {
         NavigationStack {
@@ -26,7 +26,7 @@ struct FavoritesView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 24, height: 24)
-                              
+                                
                                 
                                 VStack(alignment: .leading) {
                                     Text(snippet.name)
@@ -45,22 +45,22 @@ struct FavoritesView: View {
                                             HStack(alignment: .center) {
                                                 ForEach(snippet.tags, id: \.self) { tag in
                                                     TagView(
-                                                                                                                tag: tag,
-                                                                                                                hexColor: (snippet.tagBgColors?[tag])!
-                                                                                                            )
-                                                        .padding(.top, 10)
-
-                                                        
+                                                        tag: tag,
+                                                        hexColor: (snippet.tagBgColors?[tag])!
+                                                    )
+                                                    .padding(.top, 10)
+                                                    
+                                                    
                                                 }
                                             }
                                         }
                                     }
-                                  
+                                    
                                 }
-
-                               
                                 
-                               
+                                
+                                
+                                
                             }
                             
                         }
@@ -69,7 +69,7 @@ struct FavoritesView: View {
             }
             
             
-      
+            
         }
         .navigationBarTitle("Favorites")
         .navigationBarTitleDisplayMode(.inline)

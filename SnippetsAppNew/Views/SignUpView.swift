@@ -72,7 +72,7 @@ struct SignUpView: View {
                 
                 
                 Text("Password")
-                SecureFieldView(placeholder: "Passwors", password: $password)
+                SecureFieldView(placeholder: "Password", password: $password)
                     .onChange(of: password) {
                         isPasswordDirty = true
                     }
@@ -141,7 +141,7 @@ struct SignUpView: View {
             }
         }
     }
-
+    
 }
 
 #Preview {

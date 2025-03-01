@@ -8,17 +8,20 @@
 import SwiftUI
 
 struct TagView: View {
+    @Environment(\.colorScheme) var colorScheme
     let tag: String
     let hexColor: String
     
     var body: some View {
-        Text(tag)
-            .font(.caption)
-            .padding(.horizontal, 8)
-            .foregroundStyle(.indigo)
-            .padding(.vertical, 4)
-            .background(hexColor.isEmpty ? .clear : Color(hex: hexColor)?.opacity(0.3))
-            .clipShape(.rect(cornerRadius: 10))
+        HStack {
+            Text(tag)
+                .font(.caption)
+                .padding(.horizontal, 8)
+                .foregroundStyle(colorScheme == .light ?  .indigo : .white.opacity(0.8))
+                .padding(.vertical, 4)
+                .background(hexColor.isEmpty ? .clear : Color(hex: hexColor)?.opacity(0.3))
+                .clipShape(.rect(cornerRadius: 10))
+        }
     }
 }
 
