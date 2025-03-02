@@ -10,22 +10,52 @@ import FirebaseAuth
 
 struct SettingsView: View {
     @State var navigateToSignInView: Bool = false
+    let vm: SnippetsViewModel
     
     var body: some View {
         NavigationStack {
-                        Button {
-                            onSignOut()
-                            
-                        } label: {
-                            Text("Logout")
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.indigo)
-                        .navigationBarTitleDisplayMode(.inline)
-                        .navigationDestination(isPresented: $navigateToSignInView) {
-                                        SignInView()
-                                .navigationBarBackButtonHidden(true)
-                                    }
+            List {
+                NavigationLink {
+                    AccountView(user: vm.currentUser!)
+                } label: {
+                    Image(systemName: "person")
+                   Text("Account")
+                }
+                NavigationLink {
+                    AppearanceView()
+                } label: {
+                    Image(systemName: "paintpalette")
+                    Text("Appearance")
+                }
+
+                Button {
+                    onSignOut()
+                    
+                } label: {
+                    HStack {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                        Text("Logout")
+                    }
+                   
+                }
+                HStack {
+                    Text("Version")
+                    Spacer()
+                    Text("1.0.0")
+                }
+                
+                
+//                .buttonStyle(.borderedProminent)
+//                .tint(.indigo)
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationDestination(isPresented: $navigateToSignInView) {
+                    SignInView(viewModel: vm)
+                        .navigationBarBackButtonHidden(true)
+                            }
+            }
+            
+            
+                        
                      
                 }
     }
@@ -45,5 +75,8 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView()
+    
+    let vm: SnippetsViewModel = .init()
+    
+    SettingsView(vm: vm)
 }

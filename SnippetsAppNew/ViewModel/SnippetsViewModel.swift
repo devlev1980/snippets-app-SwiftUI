@@ -21,6 +21,8 @@ class SnippetsViewModel  {
     var favoriteSnippets: [Snippet] = []
     var tags: [String] = []
     var selectedLanguage: String?
+    var searchText: String = ""
+    var currentUser: User?
     
     let backgroundColors: [Color ] = [.blue, .green, .yellow, .orange, .pink,.indigo,.purple,.mint,.teal,.red,.orange,.brown,.gray]
     
@@ -50,7 +52,11 @@ class SnippetsViewModel  {
     func fetchSnippets() {
         isLoading = true
         
-        guard let currentUserEmail = Auth.auth().currentUser?.email else {
+        if currentUser == nil {
+            getCurrentUserFromAuth()
+        }
+        
+        guard let email = currentUser?.email else {
             print("No user is signed in")
             self.errorMessage = "User not authenticated"
             self.isLoading = false
@@ -60,7 +66,7 @@ class SnippetsViewModel  {
         let db = Firestore.firestore()
         
         db.collection("SnippetsDB")
-            .whereField("userEmail", isEqualTo: currentUserEmail)
+            .whereField("userEmail", isEqualTo: email)
             .getDocuments { snapshot, error in
                 Task { @MainActor in
                     self.isLoading = false
@@ -93,6 +99,7 @@ class SnippetsViewModel  {
                             print("Skipping document due to missing fields: \(doc.documentID)")
                             return nil
                         }
+                        
  
                         var snippet = Snippet(name: name,
                                                 description: description,
@@ -348,6 +355,78 @@ class SnippetsViewModel  {
     
     func setSelectedLanguage(language: String?) {
         selectedLanguage = language
+    }
+    
+    // Filtered snippets based on search text
+    var filteredSnippets: [Snippet] {
+        if searchText.isEmpty {
+            return snippets
+        } else {
+            let lowercasedQuery = searchText.lowercased()
+            return snippets.filter { snippet in
+                // Search by name
+                if snippet.name.lowercased().contains(lowercasedQuery) {
+                    return true
+                }
+                
+                // Search by tag
+                for tag in snippet.tags {
+                    if tag.lowercased().contains(lowercasedQuery) {
+                        return true
+                    }
+                }
+                
+                return false
+            }
+        }
+    }
+    
+    // Filtered favorite snippets
+    var filteredFavoriteSnippets: [Snippet] {
+        if searchText.isEmpty {
+            return favoriteSnippets
+        } else {
+            let lowercasedQuery = searchText.lowercased()
+            return favoriteSnippets.filter { snippet in
+                // Search by name
+                if snippet.name.lowercased().contains(lowercasedQuery) {
+                    return true
+                }
+                
+                // Search by tag
+                for tag in snippet.tags {
+                    if tag.lowercased().contains(lowercasedQuery) {
+                        return true
+                    }
+                }
+                
+                return false
+            }
+        }
+    }
+    
+    // Filtered tags
+    var filteredTags: [String] {
+        if searchText.isEmpty {
+            return tags
+        } else {
+            let lowercasedQuery = searchText.lowercased()
+            return tags.filter { tag in
+                tag.lowercased().contains(lowercasedQuery)
+            }
+        }
+    }
+    
+    func setCurrentUser(name: String, email: String) {
+        currentUser = User(name: name, email: email)
+    }
+    
+    func getCurrentUserFromAuth() {
+        if let user = Auth.auth().currentUser {
+            let email = user.email ?? ""
+            let name = user.displayName ?? email.components(separatedBy: "@").first ?? "User"
+            setCurrentUser(name: name, email: email)
+        }
     }
 }
 

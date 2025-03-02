@@ -12,17 +12,39 @@ struct MySnippetDetailsView: View {
     @Environment(\.colorScheme) var colorScheme
     @State var vm: SnippetsViewModel
     @State var isBookmarked: Bool = false
+    @State var editableName: String = ""
     let navigateFrom: NavigateFromView
     let snippet: Snippet
+    @State var isEditing: Bool = false
     
     
     var body: some View {
         Section{
             VStack(alignment: .leading) {
                 HStack {
-                    Text(snippet.name)
-                        .font(.headline)
-                        .fontWeight(.bold)
+                    HStack {
+                        Text(snippet.name)
+                            .font(.headline)
+                            .fontWeight(.bold)
+//                        if isEditing {
+//                            TextField("Enter snippet name", text: $editableName)
+//                                .font(.headline)
+//                                .fontWeight(.bold)
+//                               
+//                        } else {
+//                            Text(snippet.name)
+//                                .font(.headline)
+//                                .fontWeight(.bold)
+//                        }
+//                        if !isEditing {
+//                            Image(systemName: "pencil")
+//                                .onTapGesture {
+//                                    isEditing.toggle()
+//                                }
+//                        }
+                        
+                    }
+                    
                     Spacer()
                     if navigateFrom == .mySnippetsView {
                         Image(
@@ -63,7 +85,7 @@ struct MySnippetDetailsView: View {
                 }
                 ScrollView {
                     CodeEditorView(code: .constant(snippet.code), language: vm.selectedLanguage)
-//                    Text(snippet.code)
+                    //                    Text(snippet.code)
                         .font(.body)
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) :    Color.black.opacity(0.5))
                         .lineLimit(nil)

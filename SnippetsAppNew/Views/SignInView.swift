@@ -14,6 +14,8 @@ struct SignInView: View {
     @State var isPasswordDirty: Bool = false
     @State var isLoading: Bool = false
     @State var isSignedIn: Bool = false
+    let viewModel: SnippetsViewModel
+//    @Environment(SnippetsViewModel.self) private var viewModel
     
     
     var isValidEmail: Bool {
@@ -117,8 +119,20 @@ struct SignInView: View {
                 print("Error signing in: \(error)")
             } else {
                 print("Signed in successfully")
-                isLoading = false
-                isSignedIn = true
+                if let user = authResult?.user {
+                    let displayName = user.displayName ?? email.components(separatedBy: "@").first ?? "User"
+                    let userEmail = user.email ?? email
+                    
+                    // Save the user in the ViewModel
+                    DispatchQueue.main.async {
+                        self.viewModel.setCurrentUser(name: displayName, email: userEmail)
+                        self.isLoading = false
+                        self.isSignedIn = true
+                    }
+                } else {
+                    self.isLoading = false
+                    self.isSignedIn = true
+                }
             }
         }
     }
@@ -171,7 +185,12 @@ struct SignInView: View {
                     }
                     // Update UI on the main thread.
                     DispatchQueue.main.async {
-                        self.fullName = signInResult.user.profile?.name ?? "User"
+                        let userName = signInResult.user.profile?.name ?? "User"
+                        let userEmail = authResult?.user.email ?? ""
+                        
+                        // Save user to the ViewModel
+                        self.viewModel.setCurrentUser(name: userName, email: userEmail)
+                        self.fullName = userName
                         self.isSignedIn = true
                     }
                 }
@@ -180,10 +199,15 @@ struct SignInView: View {
 
     
     func checkAuthStatus() {
-        if Auth.auth().currentUser != nil {
+        if let user = Auth.auth().currentUser {
+            // Get user information
+            let displayName = user.displayName ?? user.email?.components(separatedBy: "@").first ?? "User"
+            let email = user.email ?? ""
+            
+            // Save user to the ViewModel
+            viewModel.setCurrentUser(name: displayName, email: email)
             isSignedIn = true // User is logged in, update state
         }
-        
     }
     
 }
@@ -192,5 +216,6 @@ struct SignInView: View {
 
 
 #Preview {
-    SignInView()
+    let vm: SnippetsViewModel = .init()
+    SignInView(viewModel: vm)
 }

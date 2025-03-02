@@ -17,6 +17,9 @@ struct MySnippetsView: View {
     }
     
     var body: some View {
+        
+        
+        
         NavigationStack {
             Group {
                 if vm.isLoading && vm.snippets.isEmpty {
@@ -26,10 +29,13 @@ struct MySnippetsView: View {
                         .foregroundColor(.red)
                 } else if vm.snippets.isEmpty {
                     Text("No snippets found 😢")
+                } else if vm.filteredSnippets.isEmpty && !vm.searchText.isEmpty {
+                    Text("No snippets match your search criteria")
+                        .foregroundColor(.gray)
                 } else {
                     List {
                         // Use ForEach so that we can attach the onDelete modifier.
-                        ForEach(vm.snippets, id: \.name) { snippet in
+                        ForEach(vm.filteredSnippets, id: \.name) { snippet in
                             NavigationLink {
                                 MySnippetDetailsView(vm: vm, navigateFrom: .mySnippetsView, snippet: snippet)
                             } label: {
@@ -74,8 +80,10 @@ struct MySnippetsView: View {
                     }
                 }
             }
+            .searchable(text: $vm.searchText, prompt: "Search by name or tag")
+            .navigationTitle("My Snippets")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             vm.fetchSnippets()
         }

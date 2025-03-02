@@ -55,7 +55,7 @@ struct MainTabView: View {
             
             
             NavigationView {
-                SettingsView()
+                SettingsView(vm: vm)
                     .navigationTitle("Settings")
                    
             }

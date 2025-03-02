@@ -10,11 +10,11 @@ import SwiftUI
 struct MainView: View {
     
     var body: some View {
-        
+        let vm: SnippetsViewModel = .init()
         
         
         VStack {
-            SignInView()
+            SignInView(viewModel: vm)
         }
      
     

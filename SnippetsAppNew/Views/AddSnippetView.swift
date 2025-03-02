@@ -21,6 +21,7 @@ struct AddSnippetView: View {
     @State private var isChecked = false
     @State private var tagBgColors: [String: String] = [:]
     @State var selectedLanguage: String = ""
+    
     let options: [String] = ["swift", "python", "javascript", "java", "c++", "ruby", "go", "kotlin", "c#", "php", "bash", "sql", "typescript", "scss", "less", "html", "xml", "markdown", "json", "yaml", "dart", "rust", "swiftui", "objective-c", "kotlinxml", "scala", "elixir", "erlang", "clojure", "groovy", "swiftpm"]
 
     @Environment(\.dismiss) var dismiss
@@ -28,6 +29,11 @@ struct AddSnippetView: View {
     private var isIpad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
     }
+    var isDisabled: Bool {
+        snippetTitle.isEmpty || snippetDescription.isEmpty || snippetTags.isEmpty || selectedLanguage.isEmpty || snippetCode.isEmpty
+    }
+    
+    
     
     var body: some View {
         NavigationStack {
@@ -76,7 +82,7 @@ struct AddSnippetView: View {
                                 HStack {
                                     TagView(
                                         tag: tag,
-                                        hexColor: tagBgColors[tag] ?? ""
+                                        hexColor:  ""
                                         
                                     )
                                     .font(.caption)
@@ -131,9 +137,11 @@ struct AddSnippetView: View {
                         }
                         
                     }
+                
                     .frame(maxWidth: .infinity, maxHeight: 44)
                     
                 }
+                .disabled(isDisabled)
                 
                 .buttonStyle(.borderedProminent)
                 .tint(.indigo)
@@ -173,9 +181,15 @@ struct AddSnippetView: View {
         viewModel.onDeleteTag(at: index)
     }
     func onSaveSnippet() {
-        guard let currentUserEmail = Auth.auth().currentUser?.email else {
+        if viewModel.currentUser == nil {
+            viewModel.getCurrentUserFromAuth()
+        }
+        
+        guard let userEmail = viewModel.currentUser?.email else {
+            // Handle the case where user is not authenticated
             return
         }
+        
         let timestamp: Timestamp = .init()
         
         let newSnippet: Snippet = .init(
@@ -185,7 +199,7 @@ struct AddSnippetView: View {
             isFavorite: isChecked,
             tags: snippetTags,
             code: snippetCode,
-            userEmail: currentUserEmail,
+            userEmail: userEmail,
             tagBgColors: tagBgColors
         )
         

@@ -14,6 +14,10 @@ struct TagView: View {
     
     var body: some View {
         HStack {
+//            Rectangle()
+//                .fill(Color(hex: hexColor) ?? .clear)
+//                .frame(width: 4)
+//                .cornerRadius(2)
             Text(tag)
                 .font(.caption)
                 .padding(.horizontal, 8)
