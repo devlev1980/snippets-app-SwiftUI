@@ -12,28 +12,44 @@ struct SettingsView: View {
     @State var navigateToSignInView: Bool = false
     let vm: SnippetsViewModel
     
+    var appVersion: String {
+           if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+               return version
+           }
+           return "Unknown"
+       }
+    
     var body: some View {
         NavigationStack {
             List {
                 NavigationLink {
                     AccountView(user: vm.currentUser!)
                 } label: {
-                    Image(systemName: "person")
-                   Text("Account")
+                    HStack {
+                        Image(systemName: "person.fill")
+                        VStack(alignment: .leading) {
+                            Text("Account")
+                            if let user = vm.currentUser {
+                                Text(user.name)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
                 }
-                NavigationLink {
-                    AppearanceView()
-                } label: {
-                    Image(systemName: "paintpalette")
-                    Text("Appearance")
-                }
+//                NavigationLink {
+//                    AppearanceView()
+//                } label: {
+//                    Image(systemName: "paintpalette")
+//                    Text("Appearance")
+//                }
 
                 Button {
                     onSignOut()
                     
                 } label: {
                     HStack {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                        Image(systemName: "rectangle.portrait.and.arrow.right.fill")
                         Text("Logout")
                     }
                    
@@ -41,7 +57,7 @@ struct SettingsView: View {
                 HStack {
                     Text("Version")
                     Spacer()
-                    Text("1.0.0")
+                    Text(appVersion)
                 }
                 
                 

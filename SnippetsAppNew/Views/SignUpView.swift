@@ -22,6 +22,8 @@ struct SignUpView: View {
     @State var isFullNameDirty: Bool = false
     @State var isEmailDirty: Bool = false
     @State var isPasswordDirty: Bool = false
+    @State var errorMessage: String?
+    @State var showError: Bool = false
     
     var isValidEmail: Bool {
         email.isValidEmail()
@@ -118,9 +120,18 @@ struct SignUpView: View {
                     MainTabView()
                         .navigationBarBackButtonHidden(true)
                 })
-                
-                
                 .padding(.bottom,10)
+                
+                if showError  {
+                    if let errorMessage = errorMessage  {
+                        ErrorMessageView(errorMessage: errorMessage)
+                    }
+                  
+                }
+                
+                
+                
+             
             }
             .padding()
             
@@ -129,15 +140,45 @@ struct SignUpView: View {
         
     }
     func onSignUpWithEmailPassword(email: String, password: String){
-        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+        Auth.auth().createUser(withEmail: email, password: password) { [self] authResult, error in
             if let error = error {
                 print("Error creating user: \(error)")
+                showError = true
+                errorMessage = error.localizedDescription
                 isSignedUp = false
-            } else {
-                print("User created successfully")
                 isLoading = false
-                isSignedUp = true
                 
+                // Hide error message after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    self.showError = false
+                }
+            } else if let user = authResult?.user {
+                print("User created successfully")
+                
+                // Create a change request to update the display name
+                let changeRequest = user.createProfileChangeRequest()
+                changeRequest.displayName = self.fullName
+                
+                // Commit the change
+                changeRequest.commitChanges { error in
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            print("Error updating display name: \(error)")
+                            showError = true
+                            errorMessage = error.localizedDescription
+                            
+                            // Hide error message after 3 seconds
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                self.showError = false
+                            }
+                        } else {
+                            print("Display name updated successfully")
+                        }
+                        isLoading = false
+                        isSignedUp = true
+                        showError = false
+                    }
+                }
             }
         }
     }

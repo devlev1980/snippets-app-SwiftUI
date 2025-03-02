@@ -14,6 +14,8 @@ struct SignInView: View {
     @State var isPasswordDirty: Bool = false
     @State var isLoading: Bool = false
     @State var isSignedIn: Bool = false
+    @State var errorMessage: String?
+    @State var showError: Bool = false
     let viewModel: SnippetsViewModel
 //    @Environment(SnippetsViewModel.self) private var viewModel
     
@@ -53,13 +55,14 @@ struct SignInView: View {
                         isPasswordDirty = true
                     }
                 
-//                if isPasswordDirty {
-//                    ForEach(password.validatePassword(), id: \.self) { error in
-//                        Text(error)
-//                            .foregroundColor(.red)
-//                            .font(.caption)
-//                    }
-//                }
+                
+                if showError {
+                    if let errorMessage = errorMessage {
+                        ErrorMessageView(errorMessage: errorMessage)
+                        
+                        
+                    }
+                }
                 
                 Button {
                     print("Sign In", fullName, email, password)
@@ -102,6 +105,8 @@ struct SignInView: View {
                     .buttonStyle(PlainButtonStyle())
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
+                
+                
 
             }
             .padding()
@@ -117,6 +122,14 @@ struct SignInView: View {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
                 print("Error signing in: \(error)")
+                showError = true
+                isLoading = false
+                errorMessage = error.localizedDescription
+                
+                // Hide error message after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    self.showError = false
+                }
             } else {
                 print("Signed in successfully")
                 if let user = authResult?.user {
@@ -128,10 +141,8 @@ struct SignInView: View {
                         self.viewModel.setCurrentUser(name: displayName, email: userEmail)
                         self.isLoading = false
                         self.isSignedIn = true
+                        self.showError = false
                     }
-                } else {
-                    self.isLoading = false
-                    self.isSignedIn = true
                 }
             }
         }
@@ -181,6 +192,7 @@ struct SignInView: View {
                 Auth.auth().signIn(with: credential) { authResult, error in
                     if let error = error {
                         print("Firebase sign in error: \(error.localizedDescription)")
+                        errorMessage = error.localizedDescription
                         return
                     }
                     // Update UI on the main thread.
