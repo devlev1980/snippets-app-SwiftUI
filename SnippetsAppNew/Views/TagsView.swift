@@ -15,7 +15,27 @@ struct TagsView: View {
     
     var body: some View {
         NavigationStack {
+            
+            
                    Group {
+                       if vm.filteredTags.isEmpty {
+                        
+                           VStack {
+                               Image(.noSnippets)
+                               Text("No tags found")
+                                   .font(.title2)
+                                   .foregroundStyle(.indigo)
+                               Text("Please add some tags to your tags list")
+                                   .font(.headline)
+                                   .foregroundStyle(.indigo)
+                                   .multilineTextAlignment(.center)
+                           }
+                           .padding(.top,190)
+                           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+
+                           .padding()
+                       }
+                       
                        if vm.filteredTags.isEmpty && !vm.searchText.isEmpty {
                            Text("No tags match your search")
                                .foregroundColor(.gray)

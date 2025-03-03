@@ -27,19 +27,28 @@ import Firebase
 @main
 struct SnippetsAppNewApp: App {
 //    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
+    @State private var isLoading = true
     
-    init () {
+    init() {
         FirebaseApp.configure()
-        
-        
     }
     
-    
     var body: some Scene {
-        
         WindowGroup {
-            MainView()
+            if isLoading {
+                LoadingView()
+                    .onAppear {
+                        // Simulate app initialization time
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                            withAnimation {
+                                isLoading = false
+                            }
+                        }
+                    }
+            } else {
+                MainView()
+                    .transition(.opacity)
+            }
         }
     }
 }

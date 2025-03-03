@@ -15,7 +15,17 @@ struct FavoritesView: View {
         NavigationStack {
             Group {
                 if vm.favoriteSnippets.isEmpty {
-                    Text("No favorites snippets found 😢")
+                    VStack {
+                        Image(.noSnippets)
+                        Text("No snippets found")
+                            .font(.title2)
+                            .foregroundStyle(.indigo)
+                        Text("Please add some snippets to your favorites list")
+                            .font(.headline)
+                            .foregroundStyle(.indigo)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
                 } else if vm.filteredFavoriteSnippets.isEmpty && !vm.searchText.isEmpty {
                     Text("No favorites match your search criteria")
                         .foregroundColor(.gray)

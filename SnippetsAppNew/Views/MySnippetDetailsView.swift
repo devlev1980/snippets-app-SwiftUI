@@ -90,7 +90,7 @@ struct MySnippetDetailsView: View {
                         .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) :    Color.black.opacity(0.5))
                         .lineLimit(nil)
                         .padding()
-                        .frame(width: UIScreen.main.bounds.width * 0.95,height: 300)
+                        .frame(width: UIScreen.main.bounds.width * 0.95,height: UIScreen.main.bounds.height * 0.5)
                         .background(Color.indigo.opacity(0.1))
                         .cornerRadius(8)
                         .overlay(

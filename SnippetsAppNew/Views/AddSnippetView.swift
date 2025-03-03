@@ -38,123 +38,126 @@ struct AddSnippetView: View {
     var body: some View {
         NavigationStack {
             
-            VStack(alignment: .leading) {
-                
-                Text("Title")
-                TextFieldView(placeholder: "Title", text: $snippetTitle)
-                
-                Text("Description")
-                TextFieldView(placeholder: "Description", text: $snippetDescription)
-                
-                
-                Text("Tags")
-                TagInputView(currentTag: $currentTag, onAddTag: addTag)
-                HStack {
-                    Toggle("Add to favorites", isOn: $isChecked)
-                        .toggleStyle(SwitchToggleStyle())
-                        .padding(.vertical, 5)
-                    Spacer()
+            ScrollView {
+                VStack(alignment: .leading) {
                     
-                    Picker("Select an option", selection: $selectedLanguage) {
-                                   ForEach(options, id: \.self) { option in
-                                       Text(option).tag(option)
-                                           .foregroundStyle(.indigo)
-                                   }
-                               }
-                               .pickerStyle(MenuPickerStyle())
-                               .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
-                               .tint(Color.indigo)
-                               .onChange(of: selectedLanguage) {
-                                   viewModel.setSelectedLanguage(language: selectedLanguage)
-                               }
+                    Text("Title")
+                    TextFieldView(placeholder: "Title", text: $snippetTitle)
                     
-                    Spacer()
+                    Text("Description")
+                    TextFieldView(placeholder: "Description", text: $snippetDescription)
                     
-                }
-                
-              
-                
-                if !snippetTags.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-                            ForEach(Array(snippetTags.enumerated()), id: \.element) { index, tag in
-                                
-                                HStack {
-                                    TagView(
-                                        tag: tag,
-                                        hexColor:  ""
-                                        
-                                    )
-                                    .font(.caption)
-                                 
-                                    
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.indigo)
-                                        .onTapGesture {
-                                            removeTag(at: index)
-                                        }
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .foregroundStyle(.indigo)
-                                .background(Color(hex: tagBgColors[tag] ?? "")?.opacity(0.3))
-                                .clipShape(.rect(cornerRadius: 10))
-                                
-                            }
-                        }
-                        .padding(.vertical, 5)
-                    }
-                }
-                
-                
-                
-                Text("Code")
-                CodeEditorView(code: $snippetCode,language: selectedLanguage)
-//                TextEditor(text: $snippetCode)
-                    .frame(minHeight: 200)
-                    .padding()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.indigo, lineWidth: 1)
-                    )
-                    .cornerRadius(10)
-                    .textInputAutocapitalization(.never)
-                
-                
-                Button {
-                    print("Add snippet")
-                    isLoading = true
                     
-                    onSaveSnippet()
-                } label: {
+                    Text("Tags")
+                    TagInputView(currentTag: $currentTag, onAddTag: addTag)
                     HStack {
-                        Text("Add snippet")
-                            .fontWeight(.bold)
+                        Toggle("Add to favorites", isOn: $isChecked)
+                            .toggleStyle(SwitchToggleStyle())
+                            .padding(.vertical, 5)
+                        Spacer()
                         
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        }
+                        Picker("Select an option", selection: $selectedLanguage) {
+                                       ForEach(options, id: \.self) { option in
+                                           Text(option).tag(option)
+                                               .foregroundStyle(.indigo)
+                                       }
+                                   }
+                                   .pickerStyle(MenuPickerStyle())
+                                   .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
+                                   .tint(Color.indigo)
+                                   .onChange(of: selectedLanguage) {
+                                       viewModel.setSelectedLanguage(language: selectedLanguage)
+                                   }
+                        
+                        Spacer()
                         
                     }
-                
-                    .frame(maxWidth: .infinity, maxHeight: 44)
                     
+                  
+                    
+                    if !snippetTags.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(Array(snippetTags.enumerated()), id: \.element) { index, tag in
+                                    
+                                    HStack {
+                                        TagView(
+                                            tag: tag,
+                                            hexColor:  ""
+                                            
+                                        )
+                                        .font(.caption)
+                                     
+                                        
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.indigo)
+                                            .onTapGesture {
+                                                removeTag(at: index)
+                                            }
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .foregroundStyle(.indigo)
+                                    .background(Color(hex: tagBgColors[tag] ?? "")?.opacity(0.3))
+                                    .clipShape(.rect(cornerRadius: 10))
+                                    
+                                }
+                            }
+                            .padding(.vertical, 5)
+                        }
+                    }
+                    
+                    
+                    
+                    Text("Code")
+                    CodeEditorView(code: $snippetCode,language: selectedLanguage)
+    //                TextEditor(text: $snippetCode)
+                        .frame(minHeight: 200)
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.indigo, lineWidth: 1)
+                        )
+                        .cornerRadius(10)
+                        .textInputAutocapitalization(.never)
+                    
+                    
+                    Button {
+                        print("Add snippet")
+                        isLoading = true
+                        
+                        onSaveSnippet()
+                    } label: {
+                        HStack {
+                            Text("Add snippet")
+                                .fontWeight(.bold)
+                            
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            }
+                            
+                        }
+                    
+                        .frame(maxWidth: .infinity, maxHeight: 44)
+                        
+                    }
+                    .disabled(isDisabled)
+                    
+                    .buttonStyle(.borderedProminent)
+                    .tint(.indigo)
+                    .padding(.top,isIpad ? 10 :  10)
                 }
-                .disabled(isDisabled)
-                
-                .buttonStyle(.borderedProminent)
-                .tint(.indigo)
-                .padding(.top,isIpad ? 10 :  10)
-            }
-            .padding()
-            .onChange(of: viewModel.didAddSnippet) {
-                if viewModel.didAddSnippet {
-                    dismiss()
+                .padding()
+                .onChange(of: viewModel.didAddSnippet) {
+                    if viewModel.didAddSnippet {
+                        dismiss()
+                    }
+                  
+                    viewModel.didAddSnippet = false
                 }
-              
-                viewModel.didAddSnippet = false
             }
+            
             
             .navigationTitle("Add Snippet")
             .navigationBarBackButtonHidden(true)

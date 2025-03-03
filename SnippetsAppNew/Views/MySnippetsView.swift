@@ -28,7 +28,17 @@ struct MySnippetsView: View {
                     Text(vm.errorMessage)
                         .foregroundColor(.red)
                 } else if vm.snippets.isEmpty {
-                    Text("No snippets found 😢")
+                    VStack {
+                        Image(.noSnippets)
+                        Text("No snippets found")
+                            .font(.title2)
+                            .foregroundStyle(.indigo)
+                        Text("Start creating your first code snippet by tapping the plus button above")
+                            .font(.headline)
+                            .foregroundStyle(.indigo)
+                            .multilineTextAlignment(.center)
+                    }
+                   
                 } else if vm.filteredSnippets.isEmpty && !vm.searchText.isEmpty {
                     Text("No snippets match your search criteria")
                         .foregroundColor(.gray)
@@ -52,6 +62,7 @@ struct MySnippetsView: View {
                                             Text(snippet.description)
                                                 .font(.subheadline)
                                                 .foregroundColor(.gray)
+                                                .multilineTextAlignment(.leading)
                                             
                                             HStack(alignment: .center) {
                                                 Image("Time")
