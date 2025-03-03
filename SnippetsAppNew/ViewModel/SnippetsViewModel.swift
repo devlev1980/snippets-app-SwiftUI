@@ -428,5 +428,109 @@ class SnippetsViewModel  {
             setCurrentUser(name: name, email: email)
         }
     }
+    
+    @MainActor
+    func updateSnippetName(snippet: Snippet, newName: String) {
+        guard let documentID = snippet.id else {
+            print("Error: Snippet does not have a valid document ID.")
+            self.errorMessage = "Snippet document ID missing."
+            return
+        }
+        
+        // Prepare the updated data dictionary
+        let updatedData: [String: Any] = [
+            "name": newName
+        ]
+        
+        let db = Firestore.firestore()
+        
+        db.collection("SnippetsDB").document(documentID).updateData(updatedData) { [weak self] error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error updating snippet name: \(error.localizedDescription)")
+                self.errorMessage = "Error updating snippet name: \(error.localizedDescription)"
+            } else {
+                print("Snippet name updated successfully.")
+                
+                // Update local arrays by creating new snippets with the updated name
+                if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
+                    let oldSnippet = self.snippets[index]
+                    var updatedSnippet = Snippet(
+                        name: newName,
+                        description: oldSnippet.description,
+                        timestamp: oldSnippet.timestamp,
+                        isFavorite: oldSnippet.isFavorite,
+                        tags: oldSnippet.tags,
+                        code: oldSnippet.code,
+                        highlightedText: oldSnippet.highlightedText,
+                        userEmail: oldSnippet.userEmail,
+                        tagBgColors: oldSnippet.tagBgColors
+                    )
+                    updatedSnippet.id = documentID
+                    
+                    // Replace the old snippet with the updated one
+                    self.snippets[index] = updatedSnippet
+                    
+                    // Update favorite snippets array if needed
+                    if oldSnippet.isFavorite, let favIndex = self.favoriteSnippets.firstIndex(where: { $0.id == documentID }) {
+                        self.favoriteSnippets[favIndex] = updatedSnippet
+                    }
+                }
+            }
+        }
+    }
+    
+    @MainActor
+    func updateSnippetCode(snippet: Snippet, newCode: String) {
+        guard let documentID = snippet.id else {
+            print("Error: Snippet does not have a valid document ID.")
+            self.errorMessage = "Snippet document ID missing."
+            return
+        }
+        
+        // Prepare the updated data dictionary
+        let updatedData: [String: Any] = [
+            "code": newCode
+        ]
+        
+        let db = Firestore.firestore()
+        
+        db.collection("SnippetsDB").document(documentID).updateData(updatedData) { [weak self] error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error updating snippet code: \(error.localizedDescription)")
+                self.errorMessage = "Error updating snippet code: \(error.localizedDescription)"
+            } else {
+                print("Snippet code updated successfully.")
+                
+                // Update local arrays by creating new snippets with the updated code
+                if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
+                    let oldSnippet = self.snippets[index]
+                    var updatedSnippet = Snippet(
+                        name: oldSnippet.name,
+                        description: oldSnippet.description,
+                        timestamp: oldSnippet.timestamp,
+                        isFavorite: oldSnippet.isFavorite,
+                        tags: oldSnippet.tags,
+                        code: newCode,
+                        highlightedText: oldSnippet.highlightedText,
+                        userEmail: oldSnippet.userEmail,
+                        tagBgColors: oldSnippet.tagBgColors
+                    )
+                    updatedSnippet.id = documentID
+                    
+                    // Replace the old snippet with the updated one
+                    self.snippets[index] = updatedSnippet
+                    
+                    // Update favorite snippets array if needed
+                    if oldSnippet.isFavorite, let favIndex = self.favoriteSnippets.firstIndex(where: { $0.id == documentID }) {
+                        self.favoriteSnippets[favIndex] = updatedSnippet
+                    }
+                }
+            }
+        }
+    }
 }
 

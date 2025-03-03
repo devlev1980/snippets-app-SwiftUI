@@ -10,7 +10,8 @@ import Highlightr
 
 struct CodeEditorView: UIViewRepresentable {
     @Binding var code: String
-     var language: String?
+    var language: String?
+    var isDisabled: Bool = false
 //    var language: String = "swift"
     private let highlightr: Highlightr = {
         let highlightr = Highlightr()!
@@ -22,7 +23,7 @@ struct CodeEditorView: UIViewRepresentable {
         let textView = UITextView()
         textView.font = UIFont.monospacedSystemFont(ofSize: 14, weight: .regular)
         textView.delegate = context.coordinator
-        textView.isEditable = true
+        textView.isEditable = !isDisabled
         return textView
     }
     
@@ -36,6 +37,9 @@ struct CodeEditorView: UIViewRepresentable {
         } else {
             uiView.text = code
         }
+        
+        // Update editable state
+        uiView.isEditable = !isDisabled
     }
     
     func makeCoordinator() -> Coordinator {
