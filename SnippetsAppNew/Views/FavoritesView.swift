@@ -19,10 +19,10 @@ struct FavoritesView: View {
                         Image(.noSnippets)
                         Text("No snippets found")
                             .font(.title2)
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.black.opacity(0.5))
                         Text("Please add some snippets to your favorites list")
                             .font(.headline)
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.black.opacity(0.5))
                             .multilineTextAlignment(.center)
                     }
                     .padding()

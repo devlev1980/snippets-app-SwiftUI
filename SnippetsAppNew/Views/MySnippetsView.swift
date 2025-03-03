@@ -32,10 +32,10 @@ struct MySnippetsView: View {
                         Image(.noSnippets)
                         Text("No snippets found")
                             .font(.title2)
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.black.opacity(0.5))
                         Text("Start creating your first code snippet by tapping the plus button above")
                             .font(.headline)
-                            .foregroundStyle(.indigo)
+                            .foregroundStyle(.black.opacity(0.5))
                             .multilineTextAlignment(.center)
                     }
                    

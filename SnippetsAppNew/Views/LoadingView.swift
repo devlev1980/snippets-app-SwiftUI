@@ -13,11 +13,11 @@ struct LoadingView: View {
     
     var body: some View {
         ZStack {
-            Color(UIColor.systemBackground)
+            Color(.indigo.opacity(0.3))
                 .ignoresSafeArea()
             
             VStack {
-                Image(systemName: "doc.text.magnifyingglass")
+                Image(.logo)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 100, height: 100)
