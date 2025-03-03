@@ -8,7 +8,13 @@
 import SwiftUI
 import FirebaseCore
 struct FavoritesView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State var vm: SnippetsViewModel
+    
+    
+    var textColor: Color {
+        colorScheme == .light ? .black : .white
+    }
     
     
     var body: some View {
@@ -19,16 +25,16 @@ struct FavoritesView: View {
                         Image(.noSnippets)
                         Text("No snippets found")
                             .font(.title2)
-                            .foregroundStyle(.black.opacity(0.5))
+                            .foregroundStyle(textColor.opacity(0.5))
                         Text("Please add some snippets to your favorites list")
                             .font(.headline)
-                            .foregroundStyle(.black.opacity(0.5))
+                            .foregroundStyle(textColor.opacity(0.5))
                             .multilineTextAlignment(.center)
                     }
                     .padding()
                 } else if vm.filteredFavoriteSnippets.isEmpty && !vm.searchText.isEmpty {
                     Text("No favorites match your search criteria")
-                        .foregroundColor(.gray)
+                        .foregroundColor(textColor.opacity(0.5))
                 } else {
                     List(vm.filteredFavoriteSnippets, id: \.name) { snippet in
                         NavigationLink {

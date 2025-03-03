@@ -23,25 +23,25 @@ struct MySnippetDetailsView: View {
             VStack(alignment: .leading) {
                 HStack {
                     HStack {
-                        Text(snippet.name)
-                            .font(.headline)
-                            .fontWeight(.bold)
-//                        if isEditing {
-//                            TextField("Enter snippet name", text: $editableName)
-//                                .font(.headline)
-//                                .fontWeight(.bold)
-//                               
-//                        } else {
-//                            Text(snippet.name)
-//                                .font(.headline)
-//                                .fontWeight(.bold)
-//                        }
-//                        if !isEditing {
-//                            Image(systemName: "pencil")
-//                                .onTapGesture {
-//                                    isEditing.toggle()
-//                                }
-//                        }
+//                        Text(snippet.name)
+//                            .font(.headline)
+//                            .fontWeight(.bold)
+                        if isEditing {
+                            TextField(snippet.name, text: $editableName)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                               
+                        } else {
+                            Text(snippet.name)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                        }
+                        if !isEditing {
+                            Image(systemName: "pencil")
+                                .onTapGesture {
+                                    isEditing.toggle()
+                                }
+                        }
                         
                     }
                     

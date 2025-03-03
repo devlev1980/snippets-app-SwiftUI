@@ -7,6 +7,7 @@ enum NavigateFromView {
 }
 
 struct MySnippetsView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State var vm: SnippetsViewModel
     @State private var showingAddSnippet = false
     
@@ -14,6 +15,10 @@ struct MySnippetsView: View {
     
     var backgroundColor: Color {
         backgroundColors.randomElement() ?? .indigo
+    }
+    
+    var textColor: Color {
+        colorScheme == .light ? .black : .white
     }
     
     var body: some View {
@@ -24,6 +29,7 @@ struct MySnippetsView: View {
             Group {
                 if vm.isLoading && vm.snippets.isEmpty {
                     ProgressView("Loading snippets...")
+                        .foregroundColor(textColor)
                 } else if !vm.errorMessage.isEmpty {
                     Text(vm.errorMessage)
                         .foregroundColor(.red)
@@ -32,10 +38,10 @@ struct MySnippetsView: View {
                         Image(.noSnippets)
                         Text("No snippets found")
                             .font(.title2)
-                            .foregroundStyle(.black.opacity(0.5))
+                            .foregroundColor(textColor.opacity(0.5))
                         Text("Start creating your first code snippet by tapping the plus button above")
                             .font(.headline)
-                            .foregroundStyle(.black.opacity(0.5))
+                            .foregroundColor(textColor.opacity(0.5))
                             .multilineTextAlignment(.center)
                     }
                    
@@ -59,6 +65,7 @@ struct MySnippetsView: View {
                                         VStack(alignment: .leading) {
                                             Text(snippet.name)
                                                 .font(.headline)
+                                                .foregroundColor(textColor)
                                             Text(snippet.description)
                                                 .font(.subheadline)
                                                 .foregroundColor(.gray)
