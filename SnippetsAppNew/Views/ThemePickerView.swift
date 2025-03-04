@@ -49,7 +49,7 @@ public struct ThemePickerView: View {
                     language: language,
                     code: code
                 )
-                .frame(height: 120)
+                .frame(height: 150)
                 .cornerRadius(8)
                 .padding(.horizontal)
                 

@@ -310,8 +310,6 @@ struct AddSnippetView: View {
                     
                     
                     Section(header: Text("Code")) {
-                        Text("Code")
-                            .font(.headline)
                         VStack(alignment: .trailing) {
                             CodeView(
                                 code: $snippetCode,

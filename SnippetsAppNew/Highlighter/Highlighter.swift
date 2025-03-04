@@ -1021,11 +1021,11 @@ struct CodeView: View {
                             language: language ?? "swift",
                             code: code
                         )
-                        .frame(height: 120)
+                        .frame(height: 150)
                         .cornerRadius(6)
                         .overlay(
                             RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
                         )
                     }
                     .padding(.top, 8)
@@ -1164,7 +1164,7 @@ struct ThemePreviewView: View {
                 fontSize: 12,
                 theme: theme
             )
-            .frame(height: 120)
+            .frame(height: 150)
             
             Text(theme)
                 .font(.caption2)
