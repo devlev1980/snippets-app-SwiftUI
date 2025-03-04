@@ -281,6 +281,15 @@ struct MySnippetDetailsView: View {
                                 }
                             
                             Spacer()
+                            
+                            if navigateFrom == .mySnippetsView {
+                                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                                    .foregroundStyle(.indigo)
+                                    .onTapGesture {
+                                        isBookmarked.toggle()
+                                        onAddToFavoriteSnippets(snippet: currentSnippet)
+                                    }
+                            }
                         }
                     }
                     
@@ -395,24 +404,6 @@ struct MySnippetDetailsView: View {
                             .cornerRadius(5)
                             .transition(.opacity)
                             .frame(maxWidth: .infinity, alignment: .center)
-                    }
-                    
-                    // Bookmark button
-                    if navigateFrom == .mySnippetsView {
-                        Button(action: {
-                            isBookmarked.toggle()
-                            onAddToFavoriteSnippets(snippet: currentSnippet)
-                        }) {
-                            HStack {
-                                Text(isBookmarked ? "Remove from favorites" : "Add to favorites")
-                                    .fontWeight(.bold)
-                                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: 44)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .tint(.indigo)
-                        .padding(.top, 10)
                     }
                 }
                 .padding()
