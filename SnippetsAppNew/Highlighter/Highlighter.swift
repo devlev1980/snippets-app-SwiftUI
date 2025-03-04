@@ -134,7 +134,7 @@ class BasicCodeFormatter: CodeFormatter {
     }
     
     private func formatXML(code: String, useSpaces: Bool, tabWidth: Int) -> String {
-        var formattedCode = code
+        let formattedCode = code
         var indentLevel = 0
         var result = ""
         var isInTag = false
@@ -352,16 +352,135 @@ struct CodeEditorView: UIViewRepresentable {
     var fontSize: CGFloat = 14
     var useSpaces: Bool = true
     var tabWidth: Int = 4
+    var theme: String?
     var onFormat: (() -> Void)? = nil
     
     @Environment(\.colorScheme) private var colorScheme
     
-    private let highlightr: Highlightr = {
-        let highlightr = Highlightr()!
-        return highlightr
-    }()
+    // Create a new highlighter instance for each view to avoid theme conflicts
+    private func createHighlighter() -> Highlightr {
+        let highlighter = Highlightr()!
+        let themeToUse = theme ?? (colorScheme == .dark ? "monokai" : "xcode")
+        highlighter.setTheme(to: themeToUse)
+        return highlighter
+    }
     
     private let formatter = BasicCodeFormatter()
+    
+    // Available themes in Highlightr
+    static let availableThemes = [
+        "a11y-dark", "a11y-light", "agate", "an-old-hope", "androidstudio", 
+        "arduino-light", "arta", "ascetic", "atom-one-dark", "atom-one-light",
+        "codepen-embed", "color-brewer", "darcula", "dark", "default", "docco", 
+        "dracula", "far", "foundation", "github", "github-gist", "googlecode", 
+        "grayscale", "gruvbox-dark", "gruvbox-light", "hopscotch", "hybrid", 
+        "idea", "ir-black", "kimbie.dark", "kimbie.light", "magula", "mono-blue", 
+        "monokai", "monokai-sublime", "nord", "obsidian", "ocean", "paraiso-dark", 
+        "paraiso-light", "pojoaque", "purebasic", "qtcreator_dark", "qtcreator_light", 
+        "railscasts", "rainbow", "solarized-dark", "solarized-light", "sunburst", 
+        "tomorrow", "tomorrow-night", "tomorrow-night-blue", "tomorrow-night-bright", 
+        "tomorrow-night-eighties", "vs", "vs2015", "xcode", "xt256", "zenburn"
+    ]
+    
+    // Theme categories for easier browsing
+    static let themeCategories: [String: [String]] = [
+        "Dark": [
+            "a11y-dark", "agate", "an-old-hope", "androidstudio", "atom-one-dark", 
+            "darcula", "dark", "dracula", "gruvbox-dark", "hopscotch", "hybrid", 
+            "ir-black", "kimbie.dark", "monokai", "monokai-sublime", "nord", 
+            "obsidian", "ocean", "paraiso-dark", "railscasts", "solarized-dark", 
+            "tomorrow-night", "tomorrow-night-blue", "tomorrow-night-bright", 
+            "tomorrow-night-eighties", "vs2015", "zenburn"
+        ],
+        "Light": [
+            "a11y-light", "arduino-light", "ascetic", "atom-one-light", "color-brewer", 
+            "default", "docco", "foundation", "github", "github-gist", "googlecode", 
+            "idea", "kimbie.light", "magula", "paraiso-light", "qtcreator_light", 
+            "solarized-light", "tomorrow", "vs", "xcode"
+        ],
+        "Colorful": [
+            "arta", "codepen-embed", "far", "rainbow", "sunburst", "xt256"
+        ],
+        "Monochrome": [
+            "grayscale", "mono-blue", "purebasic", "qtcreator_dark"
+        ],
+        "IDE Style": [
+            "androidstudio", "darcula", "idea", "qtcreator_dark", "qtcreator_light", 
+            "vs", "vs2015", "xcode"
+        ]
+    ]
+    
+    // Theme preferences manager
+    struct ThemePreferences {
+        private static let userDefaults = UserDefaults.standard
+        private static let themePrefix = "code_theme_"
+        private static let defaultDarkTheme = "monokai"
+        private static let defaultLightTheme = "xcode"
+        
+        static func saveTheme(_ theme: String, forLanguage language: String) {
+            userDefaults.set(theme, forKey: themeKey(for: language))
+        }
+        
+        static func getTheme(forLanguage language: String, isDarkMode: Bool) -> String {
+            let key = themeKey(for: language)
+            return userDefaults.string(forKey: key) ?? 
+                   (isDarkMode ? defaultDarkTheme : defaultLightTheme)
+        }
+        
+        static func clearTheme(forLanguage language: String) {
+            userDefaults.removeObject(forKey: themeKey(for: language))
+        }
+        
+        static func clearAllThemes() {
+            for key in userDefaults.dictionaryRepresentation().keys {
+                if key.hasPrefix(themePrefix) {
+                    userDefaults.removeObject(forKey: key)
+                }
+            }
+        }
+        
+        private static func themeKey(for language: String) -> String {
+            return "\(themePrefix)\(language.lowercased())"
+        }
+    }
+    
+    // Recommended themes for different languages
+    static func recommendedThemes(for language: String?) -> [String] {
+        guard let language = language?.lowercased() else {
+            return ["xcode", "monokai", "github", "atom-one-dark", "solarized-dark"]
+        }
+        
+        switch language {
+        case "swift":
+            return ["xcode", "atom-one-dark", "dracula", "monokai-sublime", "github"]
+        case "javascript", "typescript":
+            return ["atom-one-dark", "tomorrow-night", "monokai", "github", "solarized-dark"]
+        case "html", "xml":
+            return ["atom-one-light", "github", "xcode", "vs", "rainbow"]
+        case "css", "scss", "less":
+            return ["atom-one-dark", "tomorrow", "github", "xcode", "monokai"]
+        case "python":
+            return ["monokai", "dracula", "github", "solarized-dark", "xcode"]
+        case "java":
+            return ["idea", "github", "xcode", "monokai", "vs2015"]
+        case "c", "cpp", "c++":
+            return ["vs2015", "xcode", "github", "monokai", "atom-one-dark"]
+        case "ruby":
+            return ["github", "monokai", "dracula", "solarized-dark", "xcode"]
+        case "go":
+            return ["atom-one-dark", "github", "monokai", "xcode", "solarized-light"]
+        case "rust":
+            return ["github", "monokai", "dracula", "atom-one-dark", "xcode"]
+        case "php":
+            return ["atom-one-dark", "github", "monokai", "xcode", "solarized-dark"]
+        case "json":
+            return ["atom-one-dark", "github", "monokai", "xcode", "solarized-light"]
+        case "markdown", "md":
+            return ["github", "atom-one-light", "xcode", "solarized-light", "default"]
+        default:
+            return ["xcode", "monokai", "github", "atom-one-dark", "solarized-dark"]
+        }
+    }
     
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
@@ -379,33 +498,46 @@ struct CodeEditorView: UIViewRepresentable {
         textView.backgroundColor = .clear
         textView.textContainerInset = UIEdgeInsets(top: 8, left: showLineNumbers ? 40 : 8, bottom: 8, right: 8)
         
+        // Initialize the highlighter for this view
+        context.coordinator.highlightr = createHighlighter()
+        context.coordinator.currentTheme = theme ?? (colorScheme == .dark ? "monokai" : "xcode")
+        
         // Add keyboard shortcut for formatting (Cmd+Shift+F)
-        let formatAction = UIAction(title: "Format Code") { _ in
+        _ = UIAction(title: "Format Code") { _ in
             context.coordinator.formatCode()
         }
-        
-//        if #available(iOS 15.0, *) {
-//            textView.keyCommands = [
-//                UIKeyCommand(title: "F", image: [.command, .shift], action: #selector(context.coordinator.handleKeyCommand(_:)), input: "Format Code")
-//            ]
-//        }
         
         return textView
     }
     
     func updateUIView(_ uiView: UITextView, context: Context) {
-        // Set theme based on color scheme
-        let theme = colorScheme == .dark ? "monokai" : "xcode"
-        highlightr.setTheme(to: theme)
+        // Set theme based on preference or color scheme
+        let themeToUse = theme ?? (colorScheme == .dark ? "monokai" : "xcode")
         
-        // Apply syntax highlighting
-        if let highlightedCode = highlightr.highlight(code, as: language) {
-            // Only update if the attributed text differs, to avoid cursor jump
-            if uiView.attributedText.string != highlightedCode.string {
+        // Debug print to verify theme changes
+        print("Applying theme: \(themeToUse) for language: \(language ?? "unknown")")
+        
+        // Force theme update by recreating the highlighter if theme changed
+        if context.coordinator.currentTheme != themeToUse {
+            context.coordinator.currentTheme = themeToUse
+            context.coordinator.highlightr.setTheme(to: themeToUse)
+            
+            // Apply syntax highlighting with the new theme
+            if let highlightedCode = context.coordinator.highlightr.highlight(code, as: language) {
                 uiView.attributedText = highlightedCode
+            } else {
+                uiView.text = code
             }
         } else {
-            uiView.text = code
+            // Apply syntax highlighting with existing theme
+            if let highlightedCode = context.coordinator.highlightr.highlight(code, as: language) {
+                // Only update if the attributed text differs, to avoid cursor jump
+                if uiView.attributedText.string != highlightedCode.string {
+                    uiView.attributedText = highlightedCode
+                }
+            } else {
+                uiView.text = code
+            }
         }
         
         // Update editable state
@@ -427,9 +559,12 @@ struct CodeEditorView: UIViewRepresentable {
     class Coordinator: NSObject, UITextViewDelegate {
         var parent: CodeEditorView
         var lineNumberView: LineNumberView?
+        var currentTheme: String?
+        var highlightr: Highlightr!
         
         init(_ parent: CodeEditorView) {
             self.parent = parent
+            self.currentTheme = parent.theme ?? (parent.colorScheme == .dark ? "monokai" : "xcode")
         }
         
         @objc func handleKeyCommand(_ sender: UIKeyCommand) {
@@ -456,7 +591,7 @@ struct CodeEditorView: UIViewRepresentable {
             let selectedRange = textView.selectedRange
             
             // Perform syntax highlighting immediately
-            if let highlightedCode = parent.highlightr.highlight(textView.text, as: parent.language) {
+            if let highlightedCode = highlightr.highlight(textView.text, as: parent.language) {
                 textView.attributedText = highlightedCode
                 textView.selectedRange = selectedRange
             } else {
@@ -568,12 +703,70 @@ struct CodeView: View {
     var isDisabled: Bool = false
     var showLineNumbers: Bool = true
     var fontSize: CGFloat = 14
+    var theme: String?
     
     @Environment(\.colorScheme) private var colorScheme
     @State private var useSpaces: Bool = true
     @State private var tabWidth: Int = 4
     @State private var showFormatOptions: Bool = false
     @State private var formatSuccessMessage: String? = nil
+    @State private var selectedTheme: String? = nil
+    @State private var showThemeOptions: Bool = false
+    @State private var selectedThemeCategory: String = "All"
+    @State private var isApplyingTheme: Bool = false
+    @State private var themeAppliedMessage: String? = nil
+    
+    // Load saved theme when view appears
+    private func loadSavedTheme() {
+        if let language = language {
+            let savedTheme = CodeEditorView.ThemePreferences.getTheme(
+                forLanguage: language,
+                isDarkMode: colorScheme == .dark
+            )
+            selectedTheme = savedTheme
+        }
+    }
+    
+    // Apply a theme with visual feedback
+    private func applyTheme(_ theme: String) {
+        isApplyingTheme = true
+        
+        // First set to nil to force a refresh
+        selectedTheme = nil
+        
+        // Then apply the new theme after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            selectedTheme = theme
+            
+            if let language = language {
+                CodeEditorView.ThemePreferences.saveTheme(theme, forLanguage: language)
+            }
+            
+            // Show success message
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isApplyingTheme = false
+                themeAppliedMessage = "Theme '\(theme)' applied"
+                
+                // Hide after delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    withAnimation {
+                        themeAppliedMessage = nil
+                    }
+                }
+            }
+        }
+    }
+    
+    // Filtered themes based on selected category
+    private var filteredThemes: [String] {
+        if selectedThemeCategory == "All" {
+            return CodeEditorView.availableThemes
+        } else if let themes = CodeEditorView.themeCategories[selectedThemeCategory] {
+            return themes
+        } else {
+            return CodeEditorView.availableThemes
+        }
+    }
     
     var body: some View {
         VStack {
@@ -586,6 +779,7 @@ struct CodeView: View {
                     fontSize: fontSize,
                     useSpaces: useSpaces,
                     tabWidth: tabWidth,
+                    theme: theme ?? selectedTheme,
                     onFormat: {
                         // Show success message
                         formatSuccessMessage = "Code formatted successfully!"
@@ -603,12 +797,45 @@ struct CodeView: View {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                 )
+                .overlay(
+                    Group {
+                        if isApplyingTheme {
+                            ZStack {
+                                Color.black.opacity(0.4)
+                                VStack {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    Text("Applying theme...")
+                                        .foregroundColor(.white)
+                                        .padding(.top, 8)
+                                }
+                            }
+                        }
+                    }
+                )
                 
                 if !isDisabled {
                     HStack(spacing: 8) {
+                        // Theme options button
+                        Button(action: {
+                            showThemeOptions.toggle()
+                            showFormatOptions = false
+                        }) {
+                            Image(systemName: "paintpalette")
+                                .foregroundColor(.indigo)
+                                .padding(8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(colorScheme == .dark ? Color.black.opacity(0.6) : Color.white.opacity(0.6))
+                                        .shadow(radius: 2)
+                                )
+                        }
+                        .help("Theme Options")
+                        
                         // Format options button
                         Button(action: {
                             showFormatOptions.toggle()
+                            showThemeOptions = false
                         }) {
                             Image(systemName: "gear")
                                 .foregroundColor(.indigo)
@@ -650,6 +877,21 @@ struct CodeView: View {
                 }
             }
             
+            // Theme applied message
+            if let message = themeAppliedMessage {
+                Text(message)
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                    .padding(6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.blue.opacity(0.1))
+                    )
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: themeAppliedMessage != nil)
+                    .padding(.top, 4)
+            }
+            
             // Format success message
             if let message = formatSuccessMessage {
                 Text(message)
@@ -663,6 +905,181 @@ struct CodeView: View {
                     .transition(.opacity)
                     .animation(.easeInOut, value: formatSuccessMessage != nil)
                     .padding(.top, 4)
+            }
+            
+            // Theme options panel
+            if showThemeOptions && !isDisabled {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Theme Options")
+                        .font(.headline)
+                        .foregroundColor(.indigo)
+                    
+                    Divider()
+                    
+                    Text("Recommended for \(language ?? "code"):")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(CodeEditorView.recommendedThemes(for: language), id: \.self) { theme in
+                                Button(action: {
+                                    applyTheme(theme)
+                                }) {
+                                    Text(theme)
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(selectedTheme == theme ? Color.indigo : Color.gray.opacity(0.2))
+                                        )
+                                        .foregroundColor(selectedTheme == theme ? .white : .primary)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                    
+                    // Theme categories
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Categories:")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                Button(action: {
+                                    selectedThemeCategory = "All"
+                                }) {
+                                    Text("All")
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(selectedThemeCategory == "All" ? Color.indigo : Color.gray.opacity(0.2))
+                                        )
+                                        .foregroundColor(selectedThemeCategory == "All" ? .white : .primary)
+                                }
+                                
+                                ForEach(Array(CodeEditorView.themeCategories.keys).sorted(), id: \.self) { category in
+                                    Button(action: {
+                                        selectedThemeCategory = category
+                                    }) {
+                                        Text(category)
+                                            .font(.caption)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 6)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(selectedThemeCategory == category ? Color.indigo : Color.gray.opacity(0.2))
+                                            )
+                                            .foregroundColor(selectedThemeCategory == category ? .white : .primary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                    
+                    Text("All themes:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                    
+                    ScrollView {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], spacing: 8) {
+                            ForEach(filteredThemes, id: \.self) { theme in
+                                Button(action: {
+                                    applyTheme(theme)
+                                }) {
+                                    Text(theme)
+                                        .font(.caption)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .frame(maxWidth: .infinity)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(selectedTheme == theme ? Color.indigo : Color.gray.opacity(0.2))
+                                        )
+                                        .foregroundColor(selectedTheme == theme ? .white : .primary)
+                                }
+                            }
+                        }
+                    }
+                    .frame(height: 200)
+                    
+                    // Theme preview
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Preview:")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        ThemePreviewView(
+                            theme: selectedTheme ?? (colorScheme == .dark ? "monokai" : "xcode"),
+                            language: language ?? "swift",
+                            code: code
+                        )
+                        .frame(height: 120)
+                        .cornerRadius(6)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+                    .padding(.top, 8)
+                    
+                    HStack {
+                        Button("Reset to Default") {
+                            selectedTheme = nil
+                            if let language = language {
+                                CodeEditorView.ThemePreferences.clearTheme(forLanguage: language)
+                            }
+                        }
+                        .font(.caption)
+                        .foregroundColor(.indigo)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            // Force refresh the theme by toggling and re-applying
+                            let currentTheme = selectedTheme
+                            selectedTheme = nil
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                selectedTheme = currentTheme
+                            }
+                        }) {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.caption)
+                                .foregroundColor(.indigo)
+                        }
+                        .help("Refresh Theme")
+                        .padding(.horizontal, 8)
+                        
+                        Button("Close") {
+                            showThemeOptions = false
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.indigo)
+                        .cornerRadius(8)
+                    }
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(colorScheme == .dark ? Color.black.opacity(0.9) : Color.white.opacity(0.9))
+                        .shadow(radius: 5)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                )
+                .padding(.horizontal)
+                .transition(.opacity)
+                .animation(.easeInOut, value: showThemeOptions)
             }
             
             // Format options panel
@@ -721,6 +1138,80 @@ struct CodeView: View {
                 .transition(.opacity)
                 .animation(.easeInOut, value: showFormatOptions)
             }
+        }
+        .onAppear {
+            loadSavedTheme()
+        }
+        .onChange(of: colorScheme) { _ in
+            loadSavedTheme()
+        }
+    }
+}
+
+// Theme preview component
+struct ThemePreviewView: View {
+    var theme: String
+    var language: String
+    var code: String
+    
+    var body: some View {
+        VStack {
+            CodeView(
+                code: .constant(code),
+                language: language,
+                isDisabled: true,
+                showLineNumbers: true,
+                fontSize: 12,
+                theme: theme
+            )
+            .frame(height: 120)
+            
+            Text(theme)
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
+        }
+    }
+}
+
+// A simplified view just for previewing code with themes
+struct HighlightedCodeView: UIViewRepresentable {
+    var code: String
+    var language: String?
+    var theme: String
+    var fontSize: CGFloat = 12
+    
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.isEditable = false
+        textView.isSelectable = false
+        textView.font = UIFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+        textView.backgroundColor = .clear
+        textView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        
+        // Apply the theme and highlighting
+        applyHighlighting(to: textView)
+        
+        return textView
+    }
+    
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        // Apply the theme and highlighting when updated
+        applyHighlighting(to: uiView)
+    }
+    
+    private func applyHighlighting(to textView: UITextView) {
+        // Create a fresh highlighter for each update to ensure theme is applied correctly
+        let highlighter = Highlightr()!
+        
+        // Force theme to be set
+        highlighter.setTheme(to: theme)
+        
+        // Apply highlighting
+        if let highlightedCode = highlighter.highlight(code, as: language) {
+            textView.attributedText = highlightedCode
+        } else {
+            textView.text = code
         }
     }
 }

@@ -25,7 +25,7 @@ struct LoadingView: View {
                     .scaleEffect(isAnimating ? 1.2 : 1.0)
                     .opacity(opacity)
                 
-                Text("Snippets Code Manager")
+                Text("SnipHub")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.top, 20)
