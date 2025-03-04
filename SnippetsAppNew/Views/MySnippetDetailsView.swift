@@ -168,35 +168,36 @@ struct MySnippetDetailsView: View {
                     ScrollView {
                         if isEditingCode {
                             // Use the editable code when in edit mode
-                            CodeEditorView(code: $editableCode, language: vm.selectedLanguage, isDisabled: isDisabledCode)
-                                .font(.body)
-                                .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
-                                .lineLimit(nil)
-                                .padding()
-                                .frame(width: UIScreen.main.bounds.width * 0.95, height: UIScreen.main.bounds.height * 0.5)
-                                .background(Color.indigo.opacity(0.1))
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(style: StrokeStyle(lineWidth: 1))
-                                        .foregroundColor(Color.gray.opacity(0.3))
-                                )
+                            CodeView(
+                                code: $editableCode,
+                                language: vm.selectedLanguage,
+                                isDisabled: isDisabledCode,
+                                showLineNumbers: false,
+                                fontSize: 14
+                            )
+                            .font(.body)
+                            .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
+                            .lineLimit(nil)
+                            .padding()
+                            .frame(width: UIScreen.main.bounds.width * 0.95, height: UIScreen.main.bounds.height * 0.5)
+                            .background(Color.indigo.opacity(0.1))
+                            .cornerRadius(8)
                         } else {
                             // Use the current snippet code when not in edit mode
-                            CodeEditorView(code: .constant(currentSnippet.code), language: vm.selectedLanguage, isDisabled: true)
-                                .font(.body)
-                                .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
-                                .lineLimit(nil)
-                                .padding()
-                                .frame(width: UIScreen.main.bounds.width * 0.95, height: UIScreen.main.bounds.height * 0.5)
-                                .background(Color.indigo.opacity(0.1))
-                                .cornerRadius(8)
-                                .disabled(true) // Always disabled in view mode
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(style: StrokeStyle(lineWidth: 1))
-                                        .foregroundColor(Color.gray.opacity(0.3))
-                                )
+                            CodeView(
+                                code: .constant(currentSnippet.code),
+                                language: vm.selectedLanguage,
+                                isDisabled: true,
+                                showLineNumbers: false,
+                                fontSize: 14
+                            )
+                            .font(.body)
+                            .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
+                            .lineLimit(nil)
+                            .padding()
+                            .frame(width: UIScreen.main.bounds.width * 0.95, height: UIScreen.main.bounds.height * 0.5)
+                            .background(Color.indigo.opacity(0.1))
+                            .cornerRadius(8)
                         }
                     }
                     .padding(.top, 5)

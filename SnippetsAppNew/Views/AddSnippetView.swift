@@ -110,16 +110,16 @@ struct AddSnippetView: View {
                     
                     
                     Text("Code")
-                    CodeEditorView(code: $snippetCode,language: selectedLanguage)
-    //                TextEditor(text: $snippetCode)
-                        .frame(minHeight: 200)
-                        .padding()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.indigo, lineWidth: 1)
-                        )
-                        .cornerRadius(10)
-                        .textInputAutocapitalization(.never)
+                    CodeView(
+                        code: $snippetCode,
+                        language: selectedLanguage,
+                        isDisabled: false,
+                        showLineNumbers: false,
+                        fontSize: 14
+                    )
+                    .frame(minHeight: 200)
+                    .padding(.vertical, 8)
+                    .id(selectedLanguage)
                     
                     
                     Button {
