@@ -161,43 +161,45 @@ struct SignUpView: View {
     }
     func onSignUpWithEmailPassword(email: String, password: String) {
         isLoading = true
-        authService.createUser(withEmail: email, password: password) { [self] authResult, error in
-            if let error = error {
-                print("Error creating user: \(error)")
-                showError = true
-                errorMessage = error.localizedDescription
-                isSignedUp = false
-                isLoading = false
-                
-                // Hide error message after 3 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    self.showError = false
-                }
-            } else if let user = authResult?.user {
-                print("User created successfully")
-                
-                // Create a change request to update the display name
-                let changeRequest = user.createProfileChangeRequest()
-                changeRequest.displayName = self.fullName
-                
-                // Commit the change
-                changeRequest.commitChanges { error in
-                    DispatchQueue.main.async {
-                        if let error = error {
-                            print("Error updating display name: \(error)")
-                            showError = true
-                            errorMessage = error.localizedDescription
-                            
-                            // Hide error message after 3 seconds
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                                self.showError = false
+        authService.createUser(withEmail: email, password: password) { authResult, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error creating user: \(error)")
+                    self.showError = true
+                    self.errorMessage = error.localizedDescription
+                    self.isSignedUp = false
+                    self.isLoading = false
+                    
+                    // Hide error message after 3 seconds
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        self.showError = false
+                    }
+                } else if let user = authResult?.user {
+                    print("User created successfully")
+                    
+                    // Create a change request to update the display name
+                    let changeRequest = user.createProfileChangeRequest()
+                    changeRequest.displayName = self.fullName
+                    
+                    // Commit the change
+                    changeRequest.commitChanges { error in
+                        DispatchQueue.main.async {
+                            if let error = error {
+                                print("Error updating display name: \(error)")
+                                self.showError = true
+                                self.errorMessage = error.localizedDescription
+                                
+                                // Hide error message after 3 seconds
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                                    self.showError = false
+                                }
+                            } else {
+                                print("Display name updated successfully")
                             }
-                        } else {
-                            print("Display name updated successfully")
+                            self.isLoading = false
+                            self.isSignedUp = true
+                            self.showError = false
                         }
-                        isLoading = false
-                        isSignedUp = true
-                        showError = false
                     }
                 }
             }
