@@ -779,7 +779,7 @@ struct CodeView: View {
                     fontSize: fontSize,
                     useSpaces: useSpaces,
                     tabWidth: tabWidth,
-                    theme: theme ?? selectedTheme,
+                    theme: selectedTheme,
                     onFormat: {
                         // Show success message
                         formatSuccessMessage = "Code formatted successfully!"

@@ -23,6 +23,7 @@ struct AddSnippetView: View {
     @State var selectedLanguage: String = "typescript"
     @State private var selectedTheme: String? = nil
     @State private var showThemeOptions: Bool = false
+    @State private var forceCodeViewRefresh: UUID = UUID()
     
     let options: [String] = ["swift", "python", "javascript", "java", "c++", "ruby", "go", "kotlin", "c#", "php", "bash", "sql", "typescript", "scss", "less", "html", "xml", "markdown", "json", "yaml", "dart", "rust", "swiftui", "objective-c", "kotlinxml", "scala", "elixir", "erlang", "clojure", "groovy", "swiftpm", "css"]
 
@@ -235,6 +236,16 @@ struct AddSnippetView: View {
         viewModel.setSelectedLanguage(language: selectedLanguage)
     }
     
+    private func updateTheme() {
+        // Load saved theme based on current language and color scheme
+        selectedTheme = CodeEditorView.ThemePreferences.getTheme(
+            forLanguage: selectedLanguage,
+            isDarkMode: colorScheme == .dark
+        )
+        // Force CodeView to redraw
+        forceCodeViewRefresh = UUID()
+    }
+    
     var body: some View {
         NavigationStack {
             
@@ -321,7 +332,7 @@ struct AddSnippetView: View {
                             )
                             .frame(minHeight: 200)
                             .padding(.vertical, 8)
-                            .id(selectedLanguage)
+                            .id(forceCodeViewRefresh)
                             .onChange(of: snippetCode) { _ in
                                 detectLanguage()
                             }
@@ -372,24 +383,20 @@ struct AddSnippetView: View {
         }
         .onAppear {
             // Load saved theme
-            selectedTheme = CodeEditorView.ThemePreferences.getTheme(
-                forLanguage: selectedLanguage,
-                isDarkMode: colorScheme == .dark
-            )
+            updateTheme()
         }
         .onChange(of: colorScheme) { _ in
             // Update theme when color scheme changes
-            selectedTheme = CodeEditorView.ThemePreferences.getTheme(
-                forLanguage: selectedLanguage,
-                isDarkMode: colorScheme == .dark
-            )
+            updateTheme()
         }
         .onChange(of: selectedLanguage) { _ in
             // Update theme when language changes
-            selectedTheme = CodeEditorView.ThemePreferences.getTheme(
-                forLanguage: selectedLanguage,
-                isDarkMode: colorScheme == .dark
-            )
+            updateTheme()
+        }
+        .onChange(of: selectedTheme) { _ in
+            // Force redraw of the CodeView when theme changes
+            // This is needed to make sure the theme is applied immediately
+            forceCodeViewRefresh = UUID()
         }
     }
     
