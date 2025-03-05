@@ -8,12 +8,11 @@
 import Foundation
 
 public extension String {
-    
     func isValidEmail() -> Bool {
-        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
-        let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegex)
-        return emailTest.evaluate(with: self)
+        let pattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        let predicate = NSPredicate(format: "SELF MATCHES %@", pattern)
+        let result = predicate.evaluate(with: self)
+        print("Testing email: '\(self)' - Result: \(result)")  // Debug print
+        return result
     }
-    
-
-}
+} 

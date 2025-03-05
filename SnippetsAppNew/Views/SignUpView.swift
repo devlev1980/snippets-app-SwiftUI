@@ -13,6 +13,13 @@ import FirebaseDatabase
 import GoogleSignIn
 import GoogleSignInSwift
 
+// Make Auth conform to AuthServiceProtocol
+extension Auth: AuthServiceProtocol {
+    public func createUser(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
+        Auth.auth().createUser(withEmail: email, password: password, completion: completion)
+    }
+}
+
 struct SignUpView: View {
     @State var fullName: String = ""
     @State var email: String = ""
@@ -25,6 +32,19 @@ struct SignUpView: View {
     @State var errorMessage: String?
     @State var showError: Bool = false
     
+    private let authService: AuthServiceProtocol
+    
+    // Test-specific initializer
+    init(email: String = "", fullName: String = "", password: String = "", authService: AuthServiceProtocol = Auth.auth()) {
+        _email = State(initialValue: email)
+        _fullName = State(initialValue: fullName)
+        _password = State(initialValue: password)
+        _isEmailDirty = State(initialValue: !email.isEmpty)
+        _isFullNameDirty = State(initialValue: !fullName.isEmpty)
+        _isPasswordDirty = State(initialValue: !password.isEmpty)
+        self.authService = authService
+    }
+    
     var isValidEmail: Bool {
         email.isValidEmail()
     }
@@ -34,7 +54,7 @@ struct SignUpView: View {
     
     
     var isDisabled: Bool {
-        !isValidEmail || password.isEmpty || email.isEmpty || fullName.isEmpty || isLoading ||  !isValidPassword
+        !isValidEmail || !isValidPassword || fullName.isEmpty || isLoading
     }
     
     var body: some View {
@@ -139,8 +159,9 @@ struct SignUpView: View {
         
         
     }
-    func onSignUpWithEmailPassword(email: String, password: String){
-        Auth.auth().createUser(withEmail: email, password: password) { [self] authResult, error in
+    func onSignUpWithEmailPassword(email: String, password: String) {
+        isLoading = true
+        authService.createUser(withEmail: email, password: password) { [self] authResult, error in
             if let error = error {
                 print("Error creating user: \(error)")
                 showError = true
