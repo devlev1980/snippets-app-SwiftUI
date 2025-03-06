@@ -12,10 +12,11 @@ struct SecureFieldView: View {
     @Binding var password: String
     var body: some View {
         SecureField(placeholder, text: $password)
+            .foregroundColor(.primary)
             .padding()
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.gray, lineWidth: 0.3)
+                    .stroke(Color.gray.opacity(0.4), lineWidth: 0.5)
             )
         
     }

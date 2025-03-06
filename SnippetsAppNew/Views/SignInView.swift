@@ -39,16 +39,17 @@ struct SignInView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Indigo background with 0.3 opacity for the entire screen
+                // Adaptive background for the entire screen
                 Color.indigo
                     .opacity(0.2)
                     .ignoresSafeArea()
                 
-                // White background for the content
+                // Adaptive background for the content
                 VStack(alignment: .leading) {
                     
                     
                     Text("Email")
+                        .foregroundColor(.primary)
                     TextFieldView(placeholder: "Email", text: $email)
                         .focused($emailFieldIsFocused)
                         .onChange(of: emailFieldIsFocused) { _, newValue in
@@ -69,6 +70,7 @@ struct SignInView: View {
                     }
                     
                     Text("Password")
+                        .foregroundColor(.primary)
                     SecureFieldView(placeholder: "Password", password: $password)
                         .onChange(of: password) { _, newValue in
                             // Validate password during typing
@@ -142,6 +144,7 @@ struct SignInView: View {
                     
                     HStack {
                         Text("Don't have an account?")
+                            .foregroundColor(.primary)
                         
                         NavigationLink(destination:  SignUpView()  ) {
                             Text("Sign up")
@@ -155,7 +158,7 @@ struct SignInView: View {
 
                 }
                 .padding()
-                .background(Color.white)
+                .background(Color(UIColor.systemBackground))
                 .cornerRadius(16)
                 .shadow(radius: 5)
                 .padding()

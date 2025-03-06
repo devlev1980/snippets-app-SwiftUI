@@ -12,11 +12,11 @@ struct TextFieldView: View {
     @Binding var text: String
     var body: some View {
         TextField(placeholder, text: $text)
-                    .opacity(0.5)
+                    .foregroundColor(.primary)
                     .padding()
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.gray, lineWidth: 0.3)
+                            .stroke(Color.gray.opacity(0.4), lineWidth: 0.5)
                     )
                     .textInputAutocapitalization(.never)
     }

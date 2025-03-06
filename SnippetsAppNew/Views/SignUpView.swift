@@ -65,14 +65,15 @@ struct SignUpView: View {
         NavigationStack {
            
             ZStack {
-                // Indigo background with 0.3 opacity for the entire screen
+                // Adaptive background with opacity for the entire screen
                 Color.indigo
                     .opacity(0.2)
                     .ignoresSafeArea()
                 
-                // White background for the content
+                // Adaptive background for the content
                 VStack(alignment: .leading) {
                     Text("Full name")
+                        .foregroundColor(.primary)
                     TextFieldView(placeholder: "Email", text: $fullName)
                         .focused($fullNameFieldIsFocused)
                         .onChange(of: fullNameFieldIsFocused) { _, newValue in
@@ -96,6 +97,7 @@ struct SignUpView: View {
                     }
                     
                     Text("Email")
+                        .foregroundColor(.primary)
                     TextFieldView(placeholder: "Email", text: $email)
                         .focused($emailFieldIsFocused)
                         .onChange(of: emailFieldIsFocused) { _, newValue in
@@ -121,6 +123,7 @@ struct SignUpView: View {
                     
                     
                     Text("Password")
+                        .foregroundColor(.primary)
                     SecureFieldView(placeholder: "Password", password: $password)
                         .onChange(of: password) { _, newValue in
                             // Validate password during typing
@@ -182,7 +185,7 @@ struct SignUpView: View {
                  
                 }
                 .padding()
-                .background(Color.white)
+                .background(Color(UIColor.systemBackground))
                 .cornerRadius(16)
                 .shadow(radius: 5)
                 .padding()
