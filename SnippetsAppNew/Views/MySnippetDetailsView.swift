@@ -8,6 +8,8 @@
 import SwiftUI
 import FirebaseCore
 
+
+
 struct MySnippetDetailsView: View {
     @Environment(\.colorScheme) var colorScheme
     @State var vm: SnippetsViewModel
@@ -24,6 +26,9 @@ struct MySnippetDetailsView: View {
     @State private var detectedLanguage: String = "typescript"
     @State private var selectedTheme: String? = nil
     @State private var showThemeOptions: Bool = false
+    @State private var selectedTag: String? = nil
+    @State private var showColorPicker: Bool = false
+    @State private var choosenColor: String? = "#FFFFFF"
     
     let options: [String] = ["swift", "python", "javascript", "java", "c++", "ruby", "go", "kotlin", "c#", "php", "bash", "sql", "typescript", "scss", "less", "html", "xml", "markdown", "json", "yaml", "dart", "rust", "swiftui", "objective-c", "kotlinxml", "scala", "elixir", "erlang", "clojure", "groovy", "swiftpm", "css"]
     
@@ -238,175 +243,192 @@ struct MySnippetDetailsView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading) {
-                    // Title section
-                    HStack {
-                        if isEditing {
-                            TextField(currentSnippet.name, text: $editableName)
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .textFieldStyle(.plain)
-                                .padding(.bottom, 4)
-                                .background(
-                                    Rectangle()
-                                        .frame(height: 1)
-                                        .foregroundColor(.gray)
-                                        .offset(y: 12)
-                                )
-                            
-                            HStack(spacing: 10) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(Color.red)
-                                    .onTapGesture {
-                                        editableName = currentSnippet.name
-                                        isEditing = false
-                                    }
+            ZStack {
+                // Indigo background with opacity 0.2 for the entire screen
+                Color.indigo
+                    .opacity(0.2)
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        // Title section
+                        HStack {
+                            if isEditing {
+                                TextField(currentSnippet.name, text: $editableName)
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .textFieldStyle(.plain)
+                                    .padding(.bottom, 4)
+                                    .background(
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundColor(.gray)
+                                            .offset(y: 12)
+                                    )
                                 
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(Color.green)
-                                    .onTapGesture {
-                                        saveSnippetName()
-                                    }
-                            }
-                        } else {
-                            Text(currentSnippet.name)
-                                .font(.headline)
-                                .fontWeight(.bold)
-                            
-                            Image(systemName: "pencil")
-                                .onTapGesture {
-                                    editableName = currentSnippet.name
-                                    isEditing.toggle()
-                                }
-                            
-                            Spacer()
-                            
-                            if navigateFrom == .mySnippetsView {
-                                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                                    .foregroundStyle(.indigo)
-                                    .onTapGesture {
-                                        isBookmarked.toggle()
-                                        onAddToFavoriteSnippets(snippet: currentSnippet)
-                                    }
-                            }
-                        }
-                    }
-                    
-                    // Description section
-//                    Text("Description")
-//                        .font(.headline)
-                    Text(currentSnippet.description)
-                        .font(.caption)
-                        .foregroundStyle(Color.secondary)
-                        .padding(.bottom)
-                    
-                    // Tags section
-                    Text("Tags")
-                        .font(.headline)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-                            ForEach(currentSnippet.tags, id: \.self) { tag in
-                                TagView(
-                                    tag: tag,
-                                    hexColor: (currentSnippet.tagBgColors?[tag])!
-                                )
-                            }
-                        }
-                    }
-                    .padding(.bottom)
-                    
-                    // Code section
-                    Text("Code")
-                        .font(.headline)
-                    VStack(alignment: .trailing) {
-                        HStack {
-                            Spacer()
-                            
-                            if !isEditingCode {
-                                Image(systemName: "pencil")
-                                    .onTapGesture {
-                                        editableCode = currentSnippet.code
-                                        isEditingCode.toggle()
-                                        isDisabledCode = false
-                                    }
-                            } else {
                                 HStack(spacing: 10) {
-                                    Picker("Select language", selection: $detectedLanguage) {
-                                        ForEach(options, id: \.self) { option in
-                                            Text(option).tag(option)
-                                                .foregroundStyle(.indigo)
-                                        }
-                                    }
-                                    .pickerStyle(MenuPickerStyle())
-                                    .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
-                                    .tint(Color.indigo)
-                                    .onChange(of: detectedLanguage) {
-                                        vm.setSelectedLanguage(language: detectedLanguage)
-                                    }
-                                    
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundStyle(Color.red)
                                         .onTapGesture {
-                                            editableCode = currentSnippet.code
-                                            isEditingCode = false
-                                            isDisabledCode = true
+                                            editableName = currentSnippet.name
+                                            isEditing = false
                                         }
                                     
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundStyle(Color.green)
                                         .onTapGesture {
-                                            saveSnippetCode()
-                                            isDisabledCode = true
+                                            saveSnippetName()
+                                        }
+                                }
+                            } else {
+                                Text(currentSnippet.name)
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                
+                                Image(systemName: "pencil")
+                                    .onTapGesture {
+                                        editableName = currentSnippet.name
+                                        isEditing.toggle()
+                                    }
+                                
+                                Spacer()
+                                
+                                if navigateFrom == .mySnippetsView {
+                                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                                        .foregroundStyle(.indigo)
+                                        .onTapGesture {
+                                            isBookmarked.toggle()
+                                            onAddToFavoriteSnippets(snippet: currentSnippet)
                                         }
                                 }
                             }
                         }
-                        .padding(.horizontal)
                         
-                        if isEditingCode {
-                            CodeView(
-                                code: $editableCode,
-                                language: detectedLanguage,
-                                isDisabled: false,
-                                showLineNumbers: false,
-                                fontSize: 14,
-                                theme: selectedTheme
-                            )
-                            .frame(minHeight: 200)
-                            .padding(.vertical, 8)
-                            .id(detectedLanguage)
-                            .onChange(of: editableCode) { _ in
-                                detectLanguage(from: editableCode)
+                        // Description section
+//                    Text("Description")
+//                        .font(.headline)
+                        Text(currentSnippet.description)
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
+                            .padding(.bottom)
+                            .padding(.top,5)
+                        
+                        // Tags section
+                        Text("Tags")
+                            .font(.headline)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(currentSnippet.tags, id: \.self) { tag in
+                                    TagView(
+                                        tag: tag,
+                                        hexColor: (currentSnippet.tagBgColors?[tag])!
+                                    )
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectedTag = tag
+                                        choosenColor = vm.getTagBackgroundColor(tag: tag) ?? "#FFFFFF"
+                                        showColorPicker = true
+                                    }
+                                }
                             }
-                        } else {
-                            CodeView(
-                                code: .constant(currentSnippet.code),
-                                language: detectedLanguage,
-                                isDisabled: true,
-                                showLineNumbers: false,
-                                fontSize: 14,
-                                theme: selectedTheme
-                            )
-                            .frame(minHeight: 200)
-                            .padding(.vertical, 8)
-                            .id(detectedLanguage)
+                        }
+                        .padding(.bottom)
+                        
+                       
+                        
+                        // Code section
+                        Text("Code")
+                            .font(.headline)
+                        VStack(alignment: .trailing) {
+                            HStack {
+                                Spacer()
+                                
+                                if !isEditingCode {
+                                    Image(systemName: "pencil")
+                                        .onTapGesture {
+                                            editableCode = currentSnippet.code
+                                            isEditingCode.toggle()
+                                            isDisabledCode = false
+                                        }
+                                } else {
+                                    HStack(spacing: 10) {
+                                        Picker("Select language", selection: $detectedLanguage) {
+                                            ForEach(options, id: \.self) { option in
+                                                Text(option).tag(option)
+                                                    .foregroundStyle(.indigo)
+                                            }
+                                        }
+                                        .pickerStyle(MenuPickerStyle())
+                                        .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
+                                        .tint(Color.indigo)
+                                        .onChange(of: detectedLanguage) {
+                                            vm.setSelectedLanguage(language: detectedLanguage)
+                                        }
+                                        
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(Color.red)
+                                            .onTapGesture {
+                                                editableCode = currentSnippet.code
+                                                isEditingCode = false
+                                                isDisabledCode = true
+                                            }
+                                        
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(Color.green)
+                                            .onTapGesture {
+                                                saveSnippetCode()
+                                                isDisabledCode = true
+                                            }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            
+                            if isEditingCode {
+                                CodeView(
+                                    code: $editableCode,
+                                    language: detectedLanguage,
+                                    isDisabled: false,
+                                    showLineNumbers: false,
+                                    fontSize: 14,
+                                    theme: selectedTheme
+                                )
+                                .frame(minHeight: 200)
+                                .padding(.vertical, 8)
+                                .id(detectedLanguage)
+                                .onChange(of: editableCode) { _ in
+                                    detectLanguage(from: editableCode)
+                                }
+                            } else {
+                                CodeView(
+                                    code: .constant(currentSnippet.code),
+                                    language: detectedLanguage,
+                                    isDisabled: true,
+                                    showLineNumbers: false,
+                                    fontSize: 14,
+                                    theme: selectedTheme
+                                )
+                                .frame(minHeight: 200)
+                                .padding(.vertical, 8)
+                                .id(detectedLanguage)
+                            }
+                        }
+                        
+                        // Success message
+                        if showSaveSuccess {
+                            Text(successMessage)
+                                .font(.caption)
+                                .foregroundStyle(Color.green)
+                                .padding(5)
+                                .background(Color.green.opacity(0.1))
+                                .cornerRadius(5)
+                                .transition(.opacity)
+                                .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
-                    
-                    // Success message
-                    if showSaveSuccess {
-                        Text(successMessage)
-                            .font(.caption)
-                            .foregroundStyle(Color.green)
-                            .padding(5)
-                            .background(Color.green.opacity(0.1))
-                            .cornerRadius(5)
-                            .transition(.opacity)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    }
+                    .padding()
                 }
-                .padding()
+                .background(Color.clear)
             }
             .navigationTitle("Snippet Details")
             .navigationBarTitleDisplayMode(.inline)
@@ -429,10 +451,41 @@ struct MySnippetDetailsView: View {
             updateTheme()
         }
     }
+    
     func onAddToFavoriteSnippets(snippet: Snippet) {
         let newFavoriteStatus = !snippet.isFavorite
         vm.addFavorite(isFavorite: newFavoriteStatus, snippet: snippet)
     }
+    
+    func updateTagColor(tag: String, color: String) {
+        // Update the tag color in the ViewModel
+        vm.updateTagColor(tag: tag, color: color)
+        
+        // Update the current snippet with the new color
+        var updatedTagBgColors = currentSnippet.tagBgColors ?? [:]
+        updatedTagBgColors[tag] = color
+        
+        // Create a new snippet with the updated colors
+        var newSnippet = currentSnippet
+        newSnippet.tagBgColors = updatedTagBgColors
+        
+        // Update the current snippet
+        currentSnippet = newSnippet
+        
+        // Show success message
+        successMessage = "Tag color updated successfully!"
+        withAnimation {
+            showSaveSuccess = true
+        }
+        
+        // Hide the success message after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                showSaveSuccess = false
+            }
+        }
+    }
+    
     func saveSnippetName() {
         // Only save if the name has actually changed
         if editableName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -495,6 +548,7 @@ struct MySnippetDetailsView: View {
         // Exit editing mode
         isEditing = false
     }
+    
     func saveSnippetCode() {
         // Only save if the code has actually changed
         if editableCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

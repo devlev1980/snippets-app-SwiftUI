@@ -21,53 +21,54 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
-            List {
-                NavigationLink {
-                    AccountView(user: vm.currentUser!)
-                } label: {
-                    HStack {
-                        Image(systemName: "person.fill")
-                        VStack(alignment: .leading) {
-                            Text("Account")
-                            if let user = vm.currentUser {
-                                Text(user.name)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+            ZStack {
+                // Indigo background with opacity 0.2 for the entire screen
+                Color.indigo
+                    .opacity(0.2)
+                    .ignoresSafeArea()
+                
+                List {
+                    NavigationLink {
+                        AccountView(user: vm.currentUser!)
+                    } label: {
+                        HStack {
+                            Image(systemName: "person.fill")
+                            VStack(alignment: .leading) {
+                                Text("Account")
+                                if let user = vm.currentUser {
+                                    Text(user.name)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
                             }
                         }
                     }
-                }
-//                NavigationLink {
-//                    AppearanceView()
-//                } label: {
-//                    Image(systemName: "paintpalette")
-//                    Text("Appearance")
-//                }
-
-                Button {
-                    onSignOut()
-                    
-                } label: {
-                    HStack {
-                        Image(systemName: "rectangle.portrait.and.arrow.right.fill")
-                        Text("Logout")
+                    NavigationLink {
+                        AppearanceView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "paintpalette")
+                            Text("Appearance")
+                        }
                     }
-                   
+
+                    Button {
+                        onSignOut()
+                        
+                    } label: {
+                        HStack {
+                            Image(systemName: "rectangle.portrait.and.arrow.right.fill")
+                            Text("Logout")
+                        }
+                       
+                    }
+                    HStack {
+                        Text("Version")
+                        Spacer()
+                        Text(appVersion)
+                    }
                 }
-                HStack {
-                    Text("Version")
-                    Spacer()
-                    Text(appVersion)
-                }
-                
-                
-//                .buttonStyle(.borderedProminent)
-//                .tint(.indigo)
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationDestination(isPresented: $navigateToSignInView) {
-                    SignInView(viewModel: vm)
-                        .navigationBarBackButtonHidden(true)
-                            }
+                .scrollContentBackground(.hidden) // Make list background transparent
             }
             
             

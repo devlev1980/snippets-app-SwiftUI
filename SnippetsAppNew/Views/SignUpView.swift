@@ -31,6 +31,9 @@ struct SignUpView: View {
     @State var isPasswordDirty: Bool = false
     @State var errorMessage: String?
     @State var showError: Bool = false
+    @FocusState private var fullNameFieldIsFocused: Bool
+    @FocusState private var emailFieldIsFocused: Bool
+    @FocusState private var passwordFieldIsFocused: Bool
     
     private let authService: AuthServiceProtocol
     
@@ -58,102 +61,132 @@ struct SignUpView: View {
     }
     
     var body: some View {
+        
         NavigationStack {
-            VStack(alignment: .leading) {
-                Text("Full name")
-                TextFieldView(placeholder: "Email", text: $fullName)
-                    .onChange(of: fullName) {
-                        isFullNameDirty = true
-                    }
-                if isFullNameDirty {
-                    let errors = fullName.validateFullName()
-                    
-                    ForEach(errors, id: \.self) { error in
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-                }
+           
+            ZStack {
+                // Indigo background with 0.3 opacity for the entire screen
+                Color.indigo
+                    .opacity(0.2)
+                    .ignoresSafeArea()
                 
-                Text("Email")
-                TextFieldView(placeholder: "Email", text: $email)
-                    .onChange(of: email) {
-                        isEmailDirty = true
+                // White background for the content
+                VStack(alignment: .leading) {
+                    Text("Full name")
+                    TextFieldView(placeholder: "Email", text: $fullName)
+                        .focused($fullNameFieldIsFocused)
+                        .onChange(of: fullNameFieldIsFocused) { _, newValue in
+                            // Only validate when focus is lost
+                            if !newValue {
+                                isFullNameDirty = true
+                            }
+                        }
+                        .onSubmit {
+                            isFullNameDirty = true
+                        }
                         
-                    }
-                if email.isEmpty && isEmailDirty {
-                    Text("This field is required")
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-                if isEmailDirty && !isValidEmail {
-                    Text("Invalid email")
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-                
-                
-                Text("Password")
-                SecureFieldView(placeholder: "Password", password: $password)
-                    .onChange(of: password) {
-                        isPasswordDirty = true
-                    }
-                
-                if password.isEmpty && isPasswordDirty {
-                    Text("This field is required")
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-                if isPasswordDirty {
-                    ForEach(password.validatePassword(), id: \.self) { error in
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-                }
-                
-                Button {
-                    print("Sign Up", fullName, email, password)
-                    isLoading = true
-                    onSignUpWithEmailPassword(email: email, password: password)
-                } label: {
-                    HStack {
-                        Text("Sign up")
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    if isFullNameDirty {
+                        let errors = fullName.validateFullName()
+                        
+                        ForEach(errors, id: \.self) { error in
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.caption)
                         }
                     }
-                    .padding()
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.indigo)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.top, 10)
                     
-                }
-                .disabled(isDisabled)
-                .opacity(isDisabled ? 0.5 : 1)
-                .navigationDestination(isPresented: $isSignedUp
-                                       , destination: {
-                    MainTabView()
-                        .navigationBarBackButtonHidden(true)
-                })
-                .padding(.bottom,10)
-                
-                if showError  {
-                    if let errorMessage = errorMessage  {
-                        ErrorMessageView(errorMessage: errorMessage)
+                    Text("Email")
+                    TextFieldView(placeholder: "Email", text: $email)
+                        .focused($emailFieldIsFocused)
+                        .onChange(of: emailFieldIsFocused) { _, newValue in
+                            // Only validate when focus is lost
+                            if !newValue {
+                                isEmailDirty = true
+                            }
+                        }
+                        .onSubmit {
+                            isEmailDirty = true
+                        }
+                        
+                    if email.isEmpty && isEmailDirty {
+                        Text("This field is required")
+                            .foregroundColor(.red)
+                            .font(.caption)
                     }
-                  
+                    if isEmailDirty && !isValidEmail {
+                        Text("Invalid email")
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+                    
+                    
+                    Text("Password")
+                    SecureFieldView(placeholder: "Password", password: $password)
+                        .onChange(of: password) { _, newValue in
+                            // Validate password during typing
+                            isPasswordDirty = true
+                        }
+                    
+                    if password.isEmpty && isPasswordDirty {
+                        Text("This field is required")
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
+                    if isPasswordDirty {
+                        ForEach(password.validatePassword(), id: \.self) { error in
+                            Text(error)
+                                .foregroundColor(.red)
+                                .font(.caption)
+                        }
+                    }
+                    
+                    Button {
+                        print("Sign Up", fullName, email, password)
+                        isLoading = true
+                        onSignUpWithEmailPassword(email: email, password: password)
+                    } label: {
+                        HStack {
+                            Text("Sign up")
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            }
+                        }
+                        .padding()
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.indigo)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.top, 10)
+                        
+                    }
+                    .disabled(isDisabled)
+                    .opacity(isDisabled ? 0.5 : 1)
+                    .navigationDestination(isPresented: $isSignedUp
+                                           , destination: {
+                        MainTabView()
+                            .navigationBarBackButtonHidden(true)
+                    })
+                    .padding(.bottom,10)
+                    
+                    if showError  {
+                        if let errorMessage = errorMessage  {
+                            ErrorMessageView(errorMessage: errorMessage)
+                        }
+                      
+                    }
+                    
+                    
+                    
+                 
                 }
-                
-                
-                
-             
+                .padding()
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(radius: 5)
+                .padding()
             }
-            .padding()
             
         }
         

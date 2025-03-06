@@ -28,6 +28,8 @@ import Firebase
 struct SnippetsAppNewApp: App {
 //    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @State private var isLoading = true
+    // Add a StateObject for ThemeManager to keep it alive for the entire app lifecycle
+    @StateObject private var themeManager = ThemeManager()
     
     init() {
         FirebaseApp.configure()
@@ -45,9 +47,17 @@ struct SnippetsAppNewApp: App {
                             }
                         }
                     }
+                    // Apply theme to loading screen as well
+                    .environmentObject(themeManager)
             } else {
                 MainView()
                     .transition(.opacity)
+                    // Inject the ThemeManager to make it available to all views
+                    .environmentObject(themeManager)
+                    .onAppear {
+                        // Ensure theme is applied when transitioning to MainView
+                        themeManager.applyTheme()
+                    }
             }
         }
     }

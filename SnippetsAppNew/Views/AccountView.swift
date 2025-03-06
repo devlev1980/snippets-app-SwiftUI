@@ -26,7 +26,7 @@ struct AccountView: View {
         ZStack {
             Color
                 .indigo
-                .opacity(0.1)
+                .opacity(0.2)
                 .ignoresSafeArea()
             HStack {
                 Image("Avatar")

@@ -13,7 +13,8 @@ struct MainTabView: View {
         UIDevice.current.userInterfaceIdiom == .pad
     }
     
-    
+    // Access the ThemeManager from the environment
+    @EnvironmentObject private var themeManager: ThemeManager
     @State var vm : SnippetsViewModel = SnippetsViewModel()
     @State private var showingAddSnippet = false
     var body: some View {
@@ -64,8 +65,15 @@ struct MainTabView: View {
             }
         }
         .tint(.indigo)
-        
-        
+        // Apply additional accent coloring based on the theme
+        .accentColor(.indigo)
+        // This makes the tab bar adapt better to theme changes 
+        .onAppear {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithDefaultBackground()
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+            UITabBar.appearance().standardAppearance = appearance
+        }
         
         .if(isIpad) { view in
             view.fullScreenCover(isPresented: $showingAddSnippet) {
@@ -92,4 +100,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
+        .environmentObject(ThemeManager())
 }

@@ -16,6 +16,10 @@ struct SignInView: View {
     @State var isSignedIn: Bool = false
     @State var errorMessage: String?
     @State var showError: Bool = false
+    @State var isResetPasswordLoading: Bool = false
+    @State var showResetPasswordSuccess: Bool = false
+    @FocusState private var emailFieldIsFocused: Bool
+    @FocusState private var passwordFieldIsFocused: Bool
     let viewModel: SnippetsViewModel
 //    @Environment(SnippetsViewModel.self) private var viewModel
     
@@ -34,82 +38,128 @@ struct SignInView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading) {
+            ZStack {
+                // Indigo background with 0.3 opacity for the entire screen
+                Color.indigo
+                    .opacity(0.2)
+                    .ignoresSafeArea()
                 
-                
-                Text("Email")
-                TextFieldView(placeholder: "Email", text: $email)
-                    .onChange(of: email) {
-                        isEmailDirty = true
+                // White background for the content
+                VStack(alignment: .leading) {
+                    
+                    
+                    Text("Email")
+                    TextFieldView(placeholder: "Email", text: $email)
+                        .focused($emailFieldIsFocused)
+                        .onChange(of: emailFieldIsFocused) { _, newValue in
+                            // Only validate email when focus is lost
+                            if !newValue {
+                                isEmailDirty = true
+                            }
+                        }
+                        // Also validate on submit (when user presses return/enter)
+                        .onSubmit {
+                            isEmailDirty = true
+                        }
+                    
+                    if isEmailDirty && !isValidEmail {
+                        Text("Please enter a valid email address.")
+                            .foregroundColor(.red)
+                            .font(.caption)
                     }
-                
-                if isEmailDirty && !isValidEmail {
-                    Text("Invalid email")
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-                
-                Text("Password")
-                SecureFieldView(placeholder: "Password", password: $password)
-                    .onChange(of: password) {
-                        isPasswordDirty = true
+                    
+                    Text("Password")
+                    SecureFieldView(placeholder: "Password", password: $password)
+                        .onChange(of: password) { _, newValue in
+                            // Validate password during typing
+                            isPasswordDirty = true
+                        }
+                    
+                    // Forgot password button
+                    Button {
+                        resetPassword()
+                    } label: {
+                        HStack {
+                            Text("Forgot password?")
+                            if isResetPasswordLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .indigo))
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                        .foregroundColor(.indigo)
+                        .font(.footnote)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-                
-                
-                if showError {
-                    if let errorMessage = errorMessage {
-                        ErrorMessageView(errorMessage: errorMessage)
-                        
-                        
+                    .disabled(email.isEmpty || !isValidEmail || isResetPasswordLoading)
+                    .opacity((email.isEmpty || !isValidEmail) ? 0.5 : 1)
+                    
+                    if showResetPasswordSuccess {
+                        Text("Password reset email sent. Please check your inbox.")
+                            .foregroundColor(.green)
+                            .font(.caption)
+                            .padding(.top, 2)
                     }
-                }
-                
-                Button {
-                    print("Sign In", fullName, email, password)
-                    isLoading = true
-                    onSignInWithEmailAndPassword(email: email, password: password)
-                } label: {
-                    HStack {
-                        Text("Sign in")
-                        if isLoading {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    
+                    if showError {
+                        if let errorMessage = errorMessage {
+                            ErrorMessageView(errorMessage: errorMessage)
+                            
+                            
                         }
                     }
-                    .padding()
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.indigo)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.top, 10)
-                }
-                .disabled(isDisabled)
-                .opacity(isDisabled ? 0.5 : 1)
-                .navigationDestination(isPresented: $isSignedIn) {
-                    MainTabView()
-                        .navigationBarBackButtonHidden(true)
-                }
-                .padding(.bottom, 10)
-                
-                
-                //                To SignUp
-                
-                HStack {
-                    Text("Don't have an account?")
                     
-                    NavigationLink(destination:  SignUpView()  ) {
-                        Text("Sign up")
-                            .foregroundStyle(.indigo)
+                    Button {
+                        print("Sign In", fullName, email, password)
+                        isLoading = true
+                        onSignInWithEmailAndPassword(email: email, password: password)
+                    } label: {
+                        HStack {
+                            Text("Sign in")
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            }
+                        }
+                        .padding()
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.indigo)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.top, 10)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                
-                
+                    .disabled(isDisabled)
+                    .opacity(isDisabled ? 0.5 : 1)
+                    .navigationDestination(isPresented: $isSignedIn) {
+                        MainTabView()
+                            .navigationBarBackButtonHidden(true)
+                    }
+                    .padding(.bottom, 10)
+                    
+                    
+                    //                To SignUp
+                    
+                    HStack {
+                        Text("Don't have an account?")
+                        
+                        NavigationLink(destination:  SignUpView()  ) {
+                            Text("Sign up")
+                                .foregroundStyle(.indigo)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
+                    
 
+                }
+                .padding()
+                .background(Color.white)
+                .cornerRadius(16)
+                .shadow(radius: 5)
+                .padding()
             }
-            .padding()
             
         }
         .onAppear() {
@@ -147,6 +197,48 @@ struct SignInView: View {
             }
         }
     }
+    
+    func resetPassword() {
+        // Ensure the email is valid before proceeding
+        guard isValidEmail else {
+            showError = true
+            errorMessage = "Please enter a valid email address"
+            
+            // Hide error message after 3 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                self.showError = false
+            }
+            return
+        }
+        
+        isResetPasswordLoading = true
+        showError = false
+        showResetPasswordSuccess = false
+        
+        Auth.auth().sendPasswordReset(withEmail: email) { error in
+            isResetPasswordLoading = false
+            
+            if let error = error {
+                print("Error sending password reset: \(error)")
+                showError = true
+                errorMessage = error.localizedDescription
+                
+                // Hide error message after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    self.showError = false
+                }
+            } else {
+                print("Password reset email sent successfully")
+                showResetPasswordSuccess = true
+                
+                // Hide success message after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    self.showResetPasswordSuccess = false
+                }
+            }
+        }
+    }
+    
     func onSignInWithGoogle() {
             // Retrieve client ID from Firebase configuration
             guard let clientID = FirebaseApp.app()?.options.clientID else {

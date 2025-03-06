@@ -19,78 +19,83 @@ struct FavoritesView: View {
     
     var body: some View {
         NavigationStack {
-            Group {
-                if vm.favoriteSnippets.isEmpty {
-                    VStack {
-                        Image(.noSnippets)
-                        Text("No snippets found")
-                            .font(.title2)
-                            .foregroundStyle(textColor.opacity(0.5))
-                        Text("Please add some snippets to your favorites list")
-                            .font(.headline)
-                            .foregroundStyle(textColor.opacity(0.5))
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                } else if vm.filteredFavoriteSnippets.isEmpty && !vm.searchText.isEmpty {
-                    Text("No favorites match your search criteria")
-                        .foregroundColor(textColor.opacity(0.5))
-                } else {
-                    List(vm.filteredFavoriteSnippets, id: \.name) { snippet in
-                        NavigationLink {
-                            MySnippetDetailsView(vm: vm, navigateFrom: NavigateFromView.favoritesView, snippet: snippet)
-                        } label: {
-                            VStack(alignment: .leading) {
-                                HStack(alignment: .top) {
-                                    Image("Logo")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 24, height: 24)
-                                    
-                                    
-                                    VStack(alignment: .leading) {
-                                        Text(snippet.name)
-                                            .font(.headline)
-                                        Text(snippet.description)
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
+            ZStack {
+                // Indigo background with opacity 0.2 for the entire screen
+                Color.indigo
+                    .opacity(0.2)
+                    .ignoresSafeArea()
+                
+                Group {
+                    if vm.favoriteSnippets.isEmpty {
+                        VStack {
+                            Image(.noSnippets)
+                            Text("No snippets found")
+                                .font(.title2)
+                                .foregroundStyle(textColor.opacity(0.5))
+                            Text("Please add some snippets to your favorites list")
+                                .font(.headline)
+                                .foregroundStyle(textColor.opacity(0.5))
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                    } else if vm.filteredFavoriteSnippets.isEmpty && !vm.searchText.isEmpty {
+                        Text("No favorites match your search criteria")
+                            .foregroundColor(textColor.opacity(0.5))
+                    } else {
+                        List(vm.filteredFavoriteSnippets, id: \.name) { snippet in
+                            NavigationLink {
+                                MySnippetDetailsView(vm: vm, navigateFrom: NavigateFromView.favoritesView, snippet: snippet)
+                            } label: {
+                                VStack(alignment: .leading) {
+                                    HStack(alignment: .top) {
+                                        Image("Logo")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 24, height: 24)
                                         
-                                        HStack(alignment: .center) {
-                                            Image("Time")
-                                            Text(formatDate(date: snippet.timestamp))
-                                                .font(.caption)
-                                                .foregroundStyle(.gray.opacity(0.8))
+                                        
+                                        VStack(alignment: .leading) {
+                                            Text(snippet.name)
+                                                .font(.headline)
+                                            Text(snippet.description)
+                                                .font(.subheadline)
+                                                .foregroundColor(.gray)
                                             
-                                            ScrollView{
-                                                HStack(alignment: .center) {
-                                                    ForEach(snippet.tags, id: \.self) { tag in
-                                                        TagView(
-                                                            tag: tag,
-                                                            hexColor: (snippet.tagBgColors?[tag])!
-                                                        )
-                                                        .padding(.top, 10)
-                                                        
-                                                        
+                                            HStack(alignment: .center) {
+                                                Image("Time")
+                                                Text(formatDate(date: snippet.timestamp))
+                                                    .font(.caption)
+                                                    .foregroundStyle(.gray.opacity(0.8))
+                                                
+                                                ScrollView(.horizontal, showsIndicators: false) {
+                                                    HStack(alignment: .center) {
+                                                        ForEach(snippet.tags, id: \.self) { tag in
+                                                            TagView(
+                                                                tag: tag,
+                                                                hexColor: (snippet.tagBgColors?[tag])!
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
+                                            
                                         }
+                                        
+                                        
+                                        
                                         
                                     }
                                     
-                                    
-                                    
-                                    
                                 }
-                                
                             }
                         }
+                        .scrollContentBackground(.hidden) // Make list background transparent
                     }
                 }
+                .searchable(text: $vm.searchText, prompt: "Search by name or tag")
+                .navigationBarTitle("Favorites")
+                .navigationBarTitleDisplayMode(.inline)
             }
-            .searchable(text: $vm.searchText, prompt: "Search by name or tag")
-            .navigationBarTitle("Favorites")
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
     func formatDate(date: Timestamp) -> String {
