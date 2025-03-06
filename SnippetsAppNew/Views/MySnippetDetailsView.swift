@@ -426,7 +426,10 @@ struct MySnippetDetailsView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
+                
                     .padding()
+                    .padding()
+               
                 }
                 .background(Color.clear)
             }

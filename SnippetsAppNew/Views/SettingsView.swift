@@ -71,6 +71,8 @@ struct SettingsView: View {
                 .scrollContentBackground(.hidden) // Make list background transparent
             }
             
+            .navigationBarTitleDisplayMode(.inline)
+            
             
                         
                      

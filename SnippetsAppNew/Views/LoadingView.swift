@@ -32,9 +32,9 @@ struct LoadingView: View {
                     .padding(.horizontal,5)
                     .opacity(opacity)
                 
-                Text("Your Code Collection")
+                Text("Your code collection in one place")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.black.opacity(0.7))
                     .padding(.top, 5)
                     .opacity(opacity)
             }
