@@ -433,8 +433,7 @@ struct MySnippetDetailsView: View {
                 }
                 .background(Color.clear)
             }
-            .navigationTitle("Snippet Details")
-            .navigationBarTitleDisplayMode(.inline)
+         
         }
         .onAppear {
             isDisabledCode = true

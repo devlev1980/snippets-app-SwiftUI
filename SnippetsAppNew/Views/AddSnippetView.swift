@@ -248,133 +248,139 @@ struct AddSnippetView: View {
     
     var body: some View {
         NavigationStack {
-            
-            ScrollView {
-                VStack(alignment: .leading) {
-                    
-                    Text("Title")
-                    TextFieldView(placeholder: "Title", text: $snippetTitle)
-                    
-                    Text("Description")
-                    TextFieldView(placeholder: "Description", text: $snippetDescription)
-                    
-                    
-                    Text("Tags")
-                    TagInputView(currentTag: $currentTag, onAddTag: addTag)
-                    HStack {
-                        Toggle("Add to favorites", isOn: $isChecked)
-                            .toggleStyle(SwitchToggleStyle())
-                            .padding(.vertical, 5)
-                        Spacer()
+            ZStack {
+                Color.indigo
+                    .opacity(0.2)
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading) {
                         
-                        Picker("Select an option", selection: $selectedLanguage) {
-                                       ForEach(options, id: \.self) { option in
-                                           Text(option).tag(option)
-                                               .foregroundStyle(.indigo)
+                        Text("Title")
+                        TextFieldView(placeholder: "Title", text: $snippetTitle)
+                        
+                        Text("Description")
+                        TextFieldView(placeholder: "Description", text: $snippetDescription)
+                        
+                        
+                        Text("Tags")
+                        TagInputView(currentTag: $currentTag, onAddTag: addTag)
+                        HStack {
+                            Toggle("Add to favorites", isOn: $isChecked)
+                                .toggleStyle(SwitchToggleStyle())
+                                .padding(.vertical, 5)
+                            Spacer()
+                            
+                            Picker("Select an option", selection: $selectedLanguage) {
+                                           ForEach(options, id: \.self) { option in
+                                               Text(option).tag(option)
+                                                   .foregroundStyle(.indigo)
+                                           }
                                        }
-                                   }
-                                   .pickerStyle(MenuPickerStyle())
-                                   .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
-                                   .tint(Color.indigo)
-                                   .onChange(of: selectedLanguage) {
-                                       viewModel.setSelectedLanguage(language: selectedLanguage)
-                                   }
+                                       .pickerStyle(MenuPickerStyle())
+                                       .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
+                                       .tint(Color.indigo)
+                                       .onChange(of: selectedLanguage) {
+                                           viewModel.setSelectedLanguage(language: selectedLanguage)
+                                       }
+                            
+                            Spacer()
+                            
+                        }
                         
-                        Spacer()
+                      
                         
-                    }
-                    
-                  
-                    
-                    if !snippetTags.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(Array(snippetTags.enumerated()), id: \.element) { index, tag in
-                                    
-                                    HStack {
-                                        TagView(
-                                            tag: tag,
-                                            hexColor:  ""
-                                            
-                                        )
-                                        .font(.caption)
-                                     
+                        if !snippetTags.isEmpty {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack {
+                                    ForEach(Array(snippetTags.enumerated()), id: \.element) { index, tag in
                                         
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.indigo)
-                                            .onTapGesture {
-                                                removeTag(at: index)
-                                            }
+                                        HStack {
+                                            TagView(
+                                                tag: tag,
+                                                hexColor:  ""
+                                                
+                                            )
+                                            .font(.caption)
+                                         
+                                            
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(.indigo)
+                                                .onTapGesture {
+                                                    removeTag(at: index)
+                                                }
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 5)
+                                        .foregroundStyle(.indigo)
+                                        .background(Color(hex: tagBgColors[tag] ?? "")?.opacity(0.3))
+                                        .clipShape(.rect(cornerRadius: 10))
+                                        
                                     }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .foregroundStyle(.indigo)
-                                    .background(Color(hex: tagBgColors[tag] ?? "")?.opacity(0.3))
-                                    .clipShape(.rect(cornerRadius: 10))
-                                    
+                                }
+                                .padding(.vertical, 5)
+                            }
+                        }
+                        
+                        
+                        
+                        Section(header: Text("Code")) {
+                            VStack(alignment: .trailing) {
+                                CodeView(
+                                    code: $snippetCode,
+                                    language: selectedLanguage,
+                                    isDisabled: false,
+                                    showLineNumbers: false,
+                                    fontSize: 14,
+                                    theme: selectedTheme
+                                )
+                                .frame(minHeight: 200)
+                                .padding(.vertical, 8)
+                                .id(forceCodeViewRefresh)
+                                .onChange(of: snippetCode) { _ in
+                                    detectLanguage()
                                 }
                             }
-                            .padding(.vertical, 5)
                         }
-                    }
-                    
-                    
-                    
-                    Section(header: Text("Code")) {
-                        VStack(alignment: .trailing) {
-                            CodeView(
-                                code: $snippetCode,
-                                language: selectedLanguage,
-                                isDisabled: false,
-                                showLineNumbers: false,
-                                fontSize: 14,
-                                theme: selectedTheme
-                            )
-                            .frame(minHeight: 200)
-                            .padding(.vertical, 8)
-                            .id(forceCodeViewRefresh)
-                            .onChange(of: snippetCode) { _ in
-                                detectLanguage()
-                            }
-                        }
-                    }
-                    
-                    
-                    Button {
-                        print("Add snippet")
-                        isLoading = true
                         
-                        onSaveSnippet()
-                    } label: {
-                        HStack {
-                            Text("Add snippet")
-                                .fontWeight(.bold)
+                        
+                        Button {
+                            print("Add snippet")
+                            isLoading = true
                             
-                            if isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            onSaveSnippet()
+                        } label: {
+                            HStack {
+                                Text("Add snippet")
+                                    .fontWeight(.bold)
+                                
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                }
+                                
                             }
+                        
+                            .frame(maxWidth: .infinity, maxHeight: 44)
                             
                         }
-                    
-                        .frame(maxWidth: .infinity, maxHeight: 44)
+                        .disabled(isDisabled)
                         
+                        .buttonStyle(.borderedProminent)
+                        .tint(.indigo)
+                        .padding(.top,isIpad ? 10 :  10)
                     }
-                    .disabled(isDisabled)
-                    
-                    .buttonStyle(.borderedProminent)
-                    .tint(.indigo)
-                    .padding(.top,isIpad ? 10 :  10)
-                }
-                .padding()
-                .onChange(of: viewModel.didAddSnippet) {
-                    if viewModel.didAddSnippet {
-                        dismiss()
+                    .padding()
+                    .onChange(of: viewModel.didAddSnippet) {
+                        if viewModel.didAddSnippet {
+                            dismiss()
+                        }
+                      
+                        viewModel.didAddSnippet = false
                     }
-                  
-                    viewModel.didAddSnippet = false
                 }
             }
+         
             
             
             .navigationTitle("Add Snippet")

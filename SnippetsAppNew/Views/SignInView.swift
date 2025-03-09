@@ -124,7 +124,7 @@ struct SignInView: View {
                             }
                         }
                         .padding()
-                        .fontWeight(.bold)
+                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .background(Color.indigo)
@@ -134,7 +134,7 @@ struct SignInView: View {
                     .disabled(isDisabled)
                     .opacity(isDisabled ? 0.5 : 1)
                     .navigationDestination(isPresented: $isSignedIn) {
-                        MainTabView()
+                        MainTabView(vm: viewModel )
                             .navigationBarBackButtonHidden(true)
                     }
                     .padding(.bottom, 10)

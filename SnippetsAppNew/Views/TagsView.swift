@@ -8,10 +8,17 @@
 import SwiftUI
 
 struct TagsView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     @State var vm: SnippetsViewModel // Ensure this is properly initialized
     @State private var selectedTag: String? // Track the selected tag
     @State private var showColorPicker: Bool = false // Control the color picker sheet
     @State private var choosenColor: String? = "#FFFFFF" // Default color as a hex string
+    
+    
+    var textColor: Color {
+        colorScheme == .light ? .black : .white
+    }
     
     var body: some View {
         NavigationStack {
@@ -28,10 +35,10 @@ struct TagsView: View {
                             Image(.noSnippets)
                             Text("No tags found")
                                 .font(.title2)
-                                .foregroundStyle(.indigo)
+                                .foregroundStyle(textColor.opacity(0.5))
                             Text("Please add some tags to your tags list")
                                 .font(.headline)
-                                .foregroundStyle(.indigo)
+                                .foregroundStyle(textColor.opacity(0.5))
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.top,190)
@@ -74,9 +81,8 @@ struct TagsView: View {
                         }
                     }
                 }
+           
                 .searchable(text: $vm.searchText, prompt: "Search tags")
-                .navigationBarTitle("Tags")
-                .navigationBarTitleDisplayMode(.inline)
             }
             .sheet(isPresented: $showColorPicker) {
                 let bindingColor = Binding<Color>(

@@ -15,20 +15,20 @@ struct MainTabView: View {
     
     // Access the ThemeManager from the environment
     @EnvironmentObject private var themeManager: ThemeManager
-    @State var vm : SnippetsViewModel = SnippetsViewModel()
+    let vm: SnippetsViewModel
     @State private var showingAddSnippet = false
     var body: some View {
         TabView {
             NavigationView {
                 MySnippetsView(vm: vm)
                     .navigationTitle("My snippets")
+                    .navigationBarTitleDisplayMode(.inline)
                     .navigationBarItems(trailing:
-                                            Image(systemName: "plus")
-                        .foregroundStyle(.indigo)
-                        .onTapGesture {
-                            showingAddSnippet = true
-                        }
-                      
+                        Image(systemName: "plus")
+                            .foregroundStyle(.indigo)
+                            .onTapGesture {
+                                showingAddSnippet = true
+                            }
                     )
             }
             .tabItem {
@@ -37,28 +37,26 @@ struct MainTabView: View {
 
             NavigationView {
                 FavoritesView(vm: vm)
-                    .navigationTitle("Favorites")
-                  
+                    .navigationTitle("Favories")
+                    .navigationBarTitleDisplayMode(.inline)
             }
             .tabItem {
                 Label("Favorites", systemImage: "star.fill")
             }
             
-            
             NavigationView {
                 TagsView(vm: vm)
                     .navigationTitle("Tags")
-                  
+                    .navigationBarTitleDisplayMode(.inline)
             }
             .tabItem {
                 Label("Tags", systemImage: "tag")
             }
             
-            
             NavigationView {
                 SettingsView(vm: vm)
                     .navigationTitle("Settings")
-                   
+                    .navigationBarTitleDisplayMode(.inline)
             }
             .tabItem {
                 Label("Settings", systemImage: "gearshape.fill")
@@ -99,6 +97,6 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView()
+    MainTabView(vm: SnippetsViewModel())
         .environmentObject(ThemeManager())
 }

@@ -22,9 +22,6 @@ struct MySnippetsView: View {
     }
     
     var body: some View {
-        
-        
-        
         NavigationStack {
             ZStack {
                 // Indigo background with opacity 0.2 for the entire screen
@@ -44,12 +41,13 @@ struct MySnippetsView: View {
                             Image(.noSnippets)
                             Text("No snippets found")
                                 .font(.title2)
-                                .foregroundColor(textColor.opacity(0.5))
+                                .foregroundStyle(textColor.opacity(0.5))
                             Text("Start creating your first code snippet by tapping the plus button above")
                                 .font(.headline)
-                                .foregroundColor(textColor.opacity(0.5))
+                                .foregroundStyle(textColor.opacity(0.5))
                                 .multilineTextAlignment(.center)
                         }
+                        .padding()
                        
                     } else if vm.filteredSnippets.isEmpty && !vm.searchText.isEmpty {
                         Text("No snippets match your search criteria")
@@ -105,9 +103,10 @@ struct MySnippetsView: View {
                         .scrollContentBackground(.hidden) // Make list background transparent
                     }
                 }
+             
                 .searchable(text: $vm.searchText, prompt: "Search by name or tag")
-                .navigationTitle("My Snippets")
-                .navigationBarTitleDisplayMode(.inline)
+            
+
             }
         }
         .onAppear {

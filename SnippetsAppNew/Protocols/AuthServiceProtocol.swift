@@ -9,5 +9,5 @@ import Foundation
 import FirebaseAuth
 
 public protocol AuthServiceProtocol {
-    func createUser(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void)
+    func createUserInDB(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void)
 } 

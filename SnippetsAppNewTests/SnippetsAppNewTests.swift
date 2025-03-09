@@ -247,7 +247,7 @@ final class SignUpViewTests: XCTestCase {
 }
 
 class MockAuthService: AuthServiceProtocol {
-    func createUser(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
+    func createUserInDB(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
         // Simulate successful user creation without actual Firebase types
         print("MockAuthService - About to call completion")
         DispatchQueue.main.async {
@@ -265,7 +265,7 @@ class MockAuthServiceWithError: AuthServiceProtocol {
         print("MockAuthServiceWithError - Initialized with error: \(error.localizedDescription)")
     }
     
-    func createUser(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
+    func createUserInDB(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
         // Simulate failed user creation
         print("MockAuthServiceWithError - About to call completion with error")
         DispatchQueue.main.async { [error] in

@@ -71,26 +71,29 @@ struct SettingsView: View {
                 .scrollContentBackground(.hidden) // Make list background transparent
             }
             
-            .navigationBarTitleDisplayMode(.inline)
+    
             
-            
+            .navigationDestination(isPresented: $navigateToSignInView) {
+                SignInView(viewModel: vm)
+                    .navigationBarBackButtonHidden(true)
+            }
                         
                      
                 }
     }
     func onSignOut() {
-           do {
-               try Auth.auth().signOut()
-               print("User signed out successfully")
-               // Trigger navigation to SignInView on the main thread.
-               DispatchQueue.main.async {
-                   navigateToSignInView = true
-                   
-               }
-           } catch let error as NSError {
-               print("Error signing out: \(error.localizedDescription)")
-           }
-       }
+        do {
+            try Auth.auth().signOut()
+            print("User signed out successfully")
+            // With the auth state listener in MainView, navigation should happen automatically
+            // But we'll keep this for backwards compatibility
+            DispatchQueue.main.async {
+                navigateToSignInView = true
+            }
+        } catch let error as NSError {
+            print("Error signing out: \(error.localizedDescription)")
+        }
+    }
 }
 
 #Preview {

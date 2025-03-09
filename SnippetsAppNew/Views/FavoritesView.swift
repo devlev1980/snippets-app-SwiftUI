@@ -93,8 +93,6 @@ struct FavoritesView: View {
                     }
                 }
                 .searchable(text: $vm.searchText, prompt: "Search by name or tag")
-                .navigationBarTitle("Favorites")
-                .navigationBarTitleDisplayMode(.inline)
             }
         }
     }

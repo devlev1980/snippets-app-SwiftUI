@@ -15,7 +15,7 @@ import GoogleSignInSwift
 
 // Make Auth conform to AuthServiceProtocol
 extension Auth: AuthServiceProtocol {
-    public func createUser(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
+    public func createUserInDB(withEmail email: String, password: String, completion: @escaping (AuthDataResult?, Error?) -> Void) {
         Auth.auth().createUser(withEmail: email, password: password, completion: completion)
     }
 }
@@ -34,6 +34,7 @@ struct SignUpView: View {
     @FocusState private var fullNameFieldIsFocused: Bool
     @FocusState private var emailFieldIsFocused: Bool
     @FocusState private var passwordFieldIsFocused: Bool
+    let vm: SnippetsViewModel
     
     private let authService: AuthServiceProtocol
     
@@ -46,6 +47,7 @@ struct SignUpView: View {
         _isFullNameDirty = State(initialValue: !fullName.isEmpty)
         _isPasswordDirty = State(initialValue: !password.isEmpty)
         self.authService = authService
+        self.vm = .init()
     }
     
     var isValidEmail: Bool {
@@ -74,7 +76,7 @@ struct SignUpView: View {
                 VStack(alignment: .leading) {
                     Text("Full name")
                         .foregroundColor(.primary)
-                    TextFieldView(placeholder: "Email", text: $fullName)
+                    TextFieldView(placeholder: "Full name", text: $fullName)
                         .focused($fullNameFieldIsFocused)
                         .onChange(of: fullNameFieldIsFocused) { _, newValue in
                             // Only validate when focus is lost
@@ -168,7 +170,7 @@ struct SignUpView: View {
                     .opacity(isDisabled ? 0.5 : 1)
                     .navigationDestination(isPresented: $isSignedUp
                                            , destination: {
-                        MainTabView()
+                        MainTabView(vm: vm)
                             .navigationBarBackButtonHidden(true)
                     })
                     .padding(.bottom,10)
@@ -197,7 +199,7 @@ struct SignUpView: View {
     }
     func onSignUpWithEmailPassword(email: String, password: String) {
         isLoading = true
-        authService.createUser(withEmail: email, password: password) { authResult, error in
+        authService.createUserInDB(withEmail: email, password: password) { authResult, error in
             DispatchQueue.main.async {
                 if let error = error {
                     print("Error creating user: \(error)")
