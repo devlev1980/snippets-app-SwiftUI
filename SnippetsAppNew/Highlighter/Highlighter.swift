@@ -369,7 +369,7 @@ struct CodeEditorView: UIViewRepresentable {
     
     // Available themes in Highlightr
     static let availableThemes = [
-        "a11y-dark", "a11y-light", "agate", "an-old-hope", "androidstudio", 
+        "agate", "an-old-hope", "androidstudio",
         "arduino-light", "arta", "ascetic", "atom-one-dark", "atom-one-light",
         "codepen-embed", "color-brewer", "darcula", "dark", "default", "docco", 
         "dracula", "far", "foundation", "github", "github-gist", "googlecode", 
@@ -385,7 +385,7 @@ struct CodeEditorView: UIViewRepresentable {
     // Theme categories for easier browsing
     static let themeCategories: [String: [String]] = [
         "Dark": [
-            "a11y-dark", "agate", "an-old-hope", "androidstudio", "atom-one-dark", 
+           "agate", "an-old-hope", "androidstudio", "atom-one-dark",
             "darcula", "dark", "dracula", "gruvbox-dark", "hopscotch", "hybrid", 
             "ir-black", "kimbie.dark", "monokai", "monokai-sublime", "nord", 
             "obsidian", "ocean", "paraiso-dark", "railscasts", "solarized-dark", 
@@ -393,7 +393,7 @@ struct CodeEditorView: UIViewRepresentable {
             "tomorrow-night-eighties", "vs2015", "zenburn"
         ],
         "Light": [
-            "a11y-light", "arduino-light", "ascetic", "atom-one-light", "color-brewer", 
+         "arduino-light", "ascetic", "atom-one-light", "color-brewer",
             "default", "docco", "foundation", "github", "github-gist", "googlecode", 
             "idea", "kimbie.light", "magula", "paraiso-light", "qtcreator_light", 
             "solarized-light", "tomorrow", "vs", "xcode"
@@ -496,6 +496,7 @@ struct CodeEditorView: UIViewRepresentable {
         
         // Set up text view appearance
         textView.backgroundColor = .clear
+       
         textView.textContainerInset = UIEdgeInsets(top: 8, left: showLineNumbers ? 40 : 8, bottom: 8, right: 8)
         
         // Initialize the highlighter for this view
@@ -793,6 +794,7 @@ struct CodeView: View {
                 )
                 .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.white.opacity(0.8))
                 .cornerRadius(8)
+               
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(Color.gray.opacity(0.3), lineWidth: 1)

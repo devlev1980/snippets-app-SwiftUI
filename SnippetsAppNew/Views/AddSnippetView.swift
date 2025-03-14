@@ -239,8 +239,8 @@ struct AddSnippetView: View {
     private func updateTheme() {
         // Load saved theme based on current language and color scheme
         selectedTheme = CodeEditorView.ThemePreferences.getTheme(
-            forLanguage: selectedLanguage,
-            isDarkMode: colorScheme == .dark
+            forLanguage: selectedLanguage == "" ? "swift" : selectedLanguage,
+            isDarkMode: colorScheme == .light
         )
         // Force CodeView to redraw
         forceCodeViewRefresh = UUID()
@@ -265,6 +265,7 @@ struct AddSnippetView: View {
                         
                         Text("Tags")
                         TagInputView(currentTag: $currentTag, onAddTag: addTag)
+                  
                         HStack {
                             Toggle("Add to favorites", isOn: $isChecked)
                                 .toggleStyle(SwitchToggleStyle())
@@ -389,6 +390,7 @@ struct AddSnippetView: View {
         }
         .onAppear {
             // Load saved theme
+            forceCodeViewRefresh = UUID()
             updateTheme()
         }
         .onChange(of: colorScheme) { _ in
@@ -413,15 +415,12 @@ struct AddSnippetView: View {
             snippetTags.append(trimmedTag)
             let hexColor = viewModel.randomHexColor()
             tagBgColors[trimmedTag] = hexColor
-            viewModel.onAddTag(tag: trimmedTag)
-            DispatchQueue.main.async {
-                currentTag = ""
-            }
+
         }
     }
     func removeTag(at index: Int) {
         snippetTags.remove(at: index)
-        viewModel.onDeleteTag(at: index)
+//        viewModel.onDeleteTag(at: index)
     }
     func onSaveSnippet() {
         if viewModel.currentUser == nil {
@@ -434,6 +433,20 @@ struct AddSnippetView: View {
         }
         
         let timestamp: Timestamp = .init()
+        
+        
+        let trimmedTag = currentTag.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if !trimmedTag.isEmpty {
+            snippetTags.append(trimmedTag)
+            let hexColor = viewModel.randomHexColor()
+            tagBgColors[trimmedTag] = hexColor
+            viewModel.onAddTag(tag: trimmedTag)
+            DispatchQueue.main.async {
+                currentTag = ""
+            }
+        }
+        
         
         let newSnippet: Snippet = .init(
             name: snippetTitle,

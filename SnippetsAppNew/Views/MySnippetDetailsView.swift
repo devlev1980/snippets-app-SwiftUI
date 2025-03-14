@@ -285,16 +285,18 @@ struct MySnippetDetailsView: View {
                                     .font(.headline)
                                     .fontWeight(.bold)
                                 
+                                Spacer()
+                                Spacer()
                                 Image(systemName: "pencil")
                                     .onTapGesture {
                                         editableName = currentSnippet.name
                                         isEditing.toggle()
                                     }
                                 
-                                Spacer()
+                              
                                 
                                 if navigateFrom == .mySnippetsView {
-                                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                                    Image(systemName: isBookmarked ? "star.fill" : "star")
                                         .foregroundStyle(.indigo)
                                         .onTapGesture {
                                             isBookmarked.toggle()

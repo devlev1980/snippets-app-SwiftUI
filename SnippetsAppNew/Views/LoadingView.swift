@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct LoadingView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     @State private var isAnimating = false
     @State private var opacity = 0.0
     
+    var textColor: Color {
+        colorScheme == .light ? .black : .white
+    }
     var body: some View {
         ZStack {
             Color(.indigo.opacity(0.3))
@@ -31,10 +36,11 @@ struct LoadingView: View {
                     .padding(.top, 20)
                     .padding(.horizontal,5)
                     .opacity(opacity)
+                    .foregroundStyle(textColor)
                 
                 Text("Your code collection in one place")
                     .font(.subheadline)
-                    .foregroundColor(.black.opacity(0.7))
+                    .foregroundColor(textColor.opacity(0.7))
                     .padding(.top, 5)
                     .opacity(opacity)
             }
