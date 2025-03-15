@@ -6,6 +6,31 @@ import FirebaseDatabase
 import GoogleSignIn
 import GoogleSignInSwift
 
+// Helper struct to manage user credentials
+struct UserCredentials {
+    private static let userDefaults = UserDefaults.standard
+    private static let emailKey = "savedEmail"
+    private static let passwordKey = "savedPassword"
+    
+    static func saveCredentials(email: String, password: String) {
+        userDefaults.set(email, forKey: emailKey)
+        userDefaults.set(password, forKey: passwordKey)
+    }
+    
+    static func getEmail() -> String? {
+        return userDefaults.string(forKey: emailKey)
+    }
+    
+    static func getPassword() -> String? {
+        return userDefaults.string(forKey: passwordKey)
+    }
+    
+    static func clearCredentials() {
+        userDefaults.removeObject(forKey: emailKey)
+        userDefaults.removeObject(forKey: passwordKey)
+    }
+}
+
 struct SignInView: View {
     @State var fullName: String = ""
     @State var email: String = ""
@@ -18,6 +43,7 @@ struct SignInView: View {
     @State var showError: Bool = false
     @State var isResetPasswordLoading: Bool = false
     @State var showResetPasswordSuccess: Bool = false
+    @State private var rememberCredentials: Bool = true
     @FocusState private var emailFieldIsFocused: Bool
     @FocusState private var passwordFieldIsFocused: Bool
     let viewModel: SnippetsViewModel
@@ -111,6 +137,12 @@ struct SignInView: View {
                         }
                     }
                     
+                    // Remember credentials toggle
+                    Toggle("Remember my credentials", isOn: $rememberCredentials)
+                        .foregroundColor(.gray)
+                        .font(.footnote)
+                        .padding(.vertical, 5)
+                    
                     Button {
                         print("Sign In", fullName, email, password)
                         isLoading = true
@@ -185,6 +217,13 @@ struct SignInView: View {
                 }
             } else {
                 print("Signed in successfully")
+                // Save credentials for next login if user has opted in
+                if self.rememberCredentials {
+                    UserCredentials.saveCredentials(email: email, password: password)
+                } else {
+                    UserCredentials.clearCredentials()
+                }
+                
                 if let user = authResult?.user {
                     let displayName = user.displayName ?? email.components(separatedBy: "@").first ?? "User"
                     let userEmail = user.email ?? email
@@ -295,6 +334,13 @@ struct SignInView: View {
                         let userName = signInResult.user.profile?.name ?? "User"
                         let userEmail = authResult?.user.email ?? ""
                         
+                        // Save just the email for Google sign-in if user opted in
+                        if self.rememberCredentials && !userEmail.isEmpty {
+                            UserCredentials.saveCredentials(email: userEmail, password: "")
+                        } else {
+                            UserCredentials.clearCredentials()
+                        }
+                        
                         // Save user to the ViewModel
                         self.viewModel.setCurrentUser(name: userName, email: userEmail)
                         self.fullName = userName
@@ -314,6 +360,21 @@ struct SignInView: View {
             // Save user to the ViewModel
             viewModel.setCurrentUser(name: displayName, email: email)
             isSignedIn = true // User is logged in, update state
+        } else {
+            // Load saved credentials if available
+            let savedEmail = UserCredentials.getEmail()
+            let savedPassword = UserCredentials.getPassword()
+            
+            if let savedEmail = savedEmail {
+                self.email = savedEmail
+            }
+            
+            if let savedPassword = savedPassword {
+                self.password = savedPassword
+            }
+            
+            // Update the rememberCredentials toggle state based on whether credentials exist
+            self.rememberCredentials = (savedEmail != nil) || (savedPassword != nil)
         }
     }
     

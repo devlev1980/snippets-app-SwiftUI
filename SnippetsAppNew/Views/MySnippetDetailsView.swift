@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseCore
+import FirebaseFirestore
 
 
 
@@ -20,6 +21,12 @@ struct MySnippetDetailsView: View {
     @State private var currentSnippet: Snippet
     @State var isEditing: Bool = false
     @State var isEditingCode: Bool = false
+    @State var isEditingTags: Bool = false
+    @State var isEditingDescription: Bool = false
+    @State private var editableDescription: String = ""
+    @State private var editableTags: [String] = []
+    @State private var newTag: String = ""
+    @State private var tagBgColors: [String: String] = [:]
     @State private var showSaveSuccess: Bool = false
     @State private var successMessage: String = "Snippet updated successfully!"
     @State private var isDisabledCode: Bool = true
@@ -309,82 +316,195 @@ struct MySnippetDetailsView: View {
                         // Description section
 //                    Text("Description")
 //                        .font(.headline)
-                        Text(currentSnippet.description)
-                            .font(.caption)
-                            .foregroundStyle(Color.secondary)
-                            .padding(.bottom)
-                            .padding(.top,5)
+                        
+                        HStack(alignment: .top){
+                            if isEditingDescription {
+                                TextField(currentSnippet.description, text: $editableDescription)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
+                                    .textFieldStyle(.plain)
+                                    .padding(.bottom, 4)
+                                    .background(
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundColor(.gray)
+                                            .offset(y: 12)
+                                    )
+                                
+                                HStack(spacing: 10) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(Color.red)
+                                        .onTapGesture {
+                                            editableDescription = currentSnippet.description
+                                            isEditingDescription = false
+                                        }
+                                    
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(Color.green)
+                                        .onTapGesture {
+                                            saveSnippetDescription()
+                                        }
+                                }
+                            } else {
+                                Text(currentSnippet.description)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
+                                    .padding(.bottom)
+                                    .padding(.top,5)
+                                Spacer()
+                                Image(systemName: "pencil")
+                                    .onTapGesture {
+                                        editableDescription = currentSnippet.description
+                                        isEditingDescription = true
+                                    }
+                            }
+                        }
+                    
                         
                         // Tags section
-                        Text("Tags")
-                            .font(.headline)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(currentSnippet.tags, id: \.self) { tag in
-                                    TagView(
-                                        tag: tag,
-                                        hexColor: (currentSnippet.tagBgColors?[tag])!
-                                    )
-                                    .contentShape(Rectangle())
+                        HStack {
+                            Text("Tags")
+                                .font(.headline)
+                            Spacer()
+                            
+                            if isEditingTags {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(Color.red)
+                                        .onTapGesture {
+                                            // Just exit editing mode without saving any changes
+                                            isEditingTags = false
+                                            // Clear any partially edited data
+                                            editableTags = []
+                                            newTag = ""
+                                            // No need to modify the database on cancel
+                                            // Discard any changes by not calling saveSnippetTags()
+                                        }
+                                    
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(Color.green)
+                                        .onTapGesture {
+                                            saveSnippetTags()
+                                        }
+                                }
+                            } else {
+                                Image(systemName: "pencil")
                                     .onTapGesture {
-                                        selectedTag = tag
-                                        choosenColor = vm.getTagBackgroundColor(tag: tag) ?? "#FFFFFF"
-                                        showColorPicker = true
+                                        // Initialize editable tags from current snippet when entering edit mode
+                                        editableTags = currentSnippet.tags
+                                        tagBgColors = currentSnippet.tagBgColors ?? [:]
+                                        isEditingTags.toggle()
+                                    }
+                            }
+                        }
+                        
+                       
+                        if isEditingTags {
+                            VStack(alignment: .leading) {
+                                // Tag input field
+                                TagInputView(currentTag: $newTag, onAddTag: {
+                                    // Try to add the tag first
+                                    addTag()
+                                })
+                                .padding(.vertical, 8)
+                                
+                                // Display editable tags
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack {
+                                        ForEach(Array(editableTags.enumerated()), id: \.element) { index, tag in
+                                            HStack {
+                                                TagView(
+                                                    tag: tag,
+                                                    hexColor: tagBgColors[tag] ?? ""
+                                                )
+                                                .contentShape(Rectangle())
+                                                
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundStyle(Color.red)
+                                                    .onTapGesture {
+                                                        removeTag(at: index)
+                                                    }
+                                            }
+                                        }
                                     }
                                 }
                             }
+                            .padding(.bottom)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack {
+                                    ForEach(currentSnippet.tags, id: \.self) { tag in
+                                        TagView(
+                                            tag: tag,
+                                            hexColor: (currentSnippet.tagBgColors?[tag])!
+                                        )
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            selectedTag = tag
+                                            choosenColor = vm.getTagBackgroundColor(tag: tag) ?? "#FFFFFF"
+                                            showColorPicker = true
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.bottom)
                         }
-                        .padding(.bottom)
+                     
                         
                        
                         
                         // Code section
-                        Text("Code")
-                            .font(.headline)
+                      
                         VStack(alignment: .trailing) {
                             HStack {
+                                Text("Code")
+                                    .font(.headline)
                                 Spacer()
-                                
-                                if !isEditingCode {
-                                    Image(systemName: "pencil")
-                                        .onTapGesture {
-                                            editableCode = currentSnippet.code
-                                            isEditingCode.toggle()
-                                            isDisabledCode = false
-                                        }
-                                } else {
-                                    HStack(spacing: 10) {
-                                        Picker("Select language", selection: $detectedLanguage) {
-                                            ForEach(options, id: \.self) { option in
-                                                Text(option).tag(option)
-                                                    .foregroundStyle(.indigo)
-                                            }
-                                        }
-                                        .pickerStyle(MenuPickerStyle())
-                                        .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
-                                        .tint(Color.indigo)
-                                        .onChange(of: detectedLanguage) {
-                                            vm.setSelectedLanguage(language: detectedLanguage)
-                                        }
-                                        
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(Color.red)
+                                HStack {
+                                    
+                                    if !isEditingCode {
+                                        Image(systemName: "pencil")
                                             .onTapGesture {
                                                 editableCode = currentSnippet.code
-                                                isEditingCode = false
-                                                isDisabledCode = true
+                                                isEditingCode.toggle()
+                                                isDisabledCode = false
                                             }
-                                        
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(Color.green)
-                                            .onTapGesture {
-                                                saveSnippetCode()
-                                                isDisabledCode = true
+                                    } else {
+                                        HStack(spacing: 10) {
+                                            Picker("Select language", selection: $detectedLanguage) {
+                                                ForEach(options, id: \.self) { option in
+                                                    Text(option).tag(option)
+                                                        .foregroundStyle(.indigo)
+                                                }
                                             }
+                                            .pickerStyle(MenuPickerStyle())
+                                            .background(RoundedRectangle(cornerRadius: 8).stroke(Color.indigo, lineWidth: 1))
+                                            .tint(Color.indigo)
+                                            .onChange(of: detectedLanguage) {
+                                                vm.setSelectedLanguage(language: detectedLanguage)
+                                            }
+                                            
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundStyle(Color.red)
+                                                .onTapGesture {
+                                                    editableCode = currentSnippet.code
+                                                    isEditingCode = false
+                                                    isDisabledCode = true
+                                                }
+                                            
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundStyle(Color.green)
+                                                .onTapGesture {
+                                                    saveSnippetCode()
+                                                    isDisabledCode = true
+                                                }
+                                        }
                                     }
                                 }
+                                .padding(.horizontal)
                             }
-                            .padding(.horizontal)
+                         
+                       
                             
                             if isEditingCode {
                                 CodeView(
@@ -526,7 +646,7 @@ struct MySnippetDetailsView: View {
             // Also refresh from Firebase to ensure consistency
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 Task {
-                    await vm.fetchSnippets()
+                  vm.fetchSnippets()
                     
                     // Find the updated snippet in the refreshed list
                     if let refreshedSnippet = vm.snippets.first(where: { $0.id == currentSnippet.id }) {
@@ -590,7 +710,7 @@ struct MySnippetDetailsView: View {
             // Also refresh from Firebase to ensure consistency
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 Task {
-                    await vm.fetchSnippets()
+                    vm.fetchSnippets()
                     
                     // Find the updated snippet in the refreshed list
                     if let refreshedSnippet = vm.snippets.first(where: { $0.id == currentSnippet.id }) {
@@ -825,6 +945,171 @@ struct MySnippetDetailsView: View {
         
         // Update the ViewModel's selected language
         vm.setSelectedLanguage(language: detectedLanguage)
+    }
+    
+    func addTag() {
+        let trimmedTag = newTag.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if !trimmedTag.isEmpty && !editableTags.contains(trimmedTag) {
+            editableTags.append(trimmedTag)
+            
+            // Generate a random color for the new tag
+            let hexColor = vm.randomHexColor()
+            tagBgColors[trimmedTag] = hexColor
+            
+            // Note: We no longer need to clear newTag here
+            // as the TagInputView component now handles this
+        }
+    }
+    
+    func removeTag(at index: Int) {
+        if index >= 0 && index < editableTags.count {
+            let tagToRemove = editableTags[index]
+            editableTags.remove(at: index)
+            tagBgColors.removeValue(forKey: tagToRemove)
+            
+            // Clear the input field after removing a tag
+            newTag = ""
+        }
+    }
+    
+    func saveSnippetTags() {
+        // Only save if the tags have actually changed
+        if editableTags != currentSnippet.tags {
+            // Make a local copy of the tags and colors before exiting edit mode
+            let tagsToSave = editableTags
+            
+            // Create clean tagBgColors dictionary with only current tags
+            var updatedTagBgColors: [String: String] = [:]
+            for tag in tagsToSave {
+                updatedTagBgColors[tag] = tagBgColors[tag] ?? vm.randomHexColor()
+            }
+            
+            // Exit editing mode 
+            isEditingTags = false
+            
+            // Update Firestore
+            guard let documentID = currentSnippet.id else {
+                return
+            }
+            
+            // Immediately update the current snippet to reflect changes
+            // This ensures the UI updates immediately
+            var updatedSnippet = currentSnippet
+            updatedSnippet.tags = tagsToSave
+            updatedSnippet.tagBgColors = updatedTagBgColors
+            currentSnippet = updatedSnippet
+            
+            // Also update the ViewModel's copy of the snippet
+            if let index = vm.snippets.firstIndex(where: { $0.id == documentID }) {
+                vm.snippets[index].tags = tagsToSave
+                vm.snippets[index].tagBgColors = updatedTagBgColors
+            }
+            
+            // Update in Firestore
+            let db = Firestore.firestore()
+            db.collection("SnippetsDB").document(documentID).updateData([
+                "tags": tagsToSave,
+                "tagBgColors": updatedTagBgColors
+            ]) { error in
+                if let error = error {
+                    print("Error updating tags: \(error.localizedDescription)")
+                } else {
+                    DispatchQueue.main.async {
+                        // Refresh from Firebase as a backup, but we've already updated the UI
+                        Task {
+                            self.vm.fetchSnippets()
+                            
+                            DispatchQueue.main.async {
+                                // Find and update the refreshed snippet
+                                if let refreshedSnippet = self.vm.snippets.first(where: { $0.id == documentID }) {
+                                    self.currentSnippet = refreshedSnippet
+                                }
+                                
+                                // Show success message
+                                self.successMessage = "Tags updated successfully!"
+                                withAnimation {
+                                    self.showSaveSuccess = true
+                                }
+                                
+                                // Hide the success message after 2 seconds
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation {
+                                        self.showSaveSuccess = false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // No changes to save, just exit editing mode
+            isEditingTags = false
+        }
+    }
+
+    func saveSnippetDescription() {
+        // Only save if the description has actually changed
+        if editableDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            // Don't allow empty descriptions
+            editableDescription = currentSnippet.description
+            isEditingDescription = false
+            return
+        }
+        
+        if editableDescription != currentSnippet.description {
+            // Update the description in Firebase
+            vm.updateSnippetDescription(snippet: currentSnippet, newDescription: editableDescription)
+            
+            // Create a new snippet with the updated description and preserve the ID
+            let updatedSnippet = currentSnippet
+            var newSnippet = Snippet(
+                name: updatedSnippet.name,
+                description: editableDescription,
+                timestamp: updatedSnippet.timestamp,
+                isFavorite: updatedSnippet.isFavorite,
+                tags: updatedSnippet.tags,
+                code: updatedSnippet.code,
+                highlightedText: updatedSnippet.highlightedText,
+                userEmail: updatedSnippet.userEmail,
+                tagBgColors: updatedSnippet.tagBgColors
+            )
+            
+            // Preserve the ID
+            newSnippet.id = updatedSnippet.id
+            
+            // Update the current snippet immediately with the new description
+            currentSnippet = newSnippet
+            
+            // Also refresh from Firebase to ensure consistency
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                Task {
+                    vm.fetchSnippets()
+                    
+                    // Find the updated snippet in the refreshed list
+                    if let refreshedSnippet = vm.snippets.first(where: { $0.id == currentSnippet.id }) {
+                        currentSnippet = refreshedSnippet
+                    }
+                }
+            }
+            
+            // Show success message
+            successMessage = "Description updated successfully!"
+            withAnimation {
+                showSaveSuccess = true
+            }
+            
+            // Hide the success message after 2 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                withAnimation {
+                    showSaveSuccess = false
+                }
+            }
+        }
+        
+        // Exit editing mode
+        isEditingDescription = false
     }
 }
 

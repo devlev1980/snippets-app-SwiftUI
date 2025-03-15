@@ -415,7 +415,9 @@ struct AddSnippetView: View {
             snippetTags.append(trimmedTag)
             let hexColor = viewModel.randomHexColor()
             tagBgColors[trimmedTag] = hexColor
-
+            
+            // Note: We no longer need to clear currentTag here
+            // as the TagInputView component now handles this
         }
     }
     func removeTag(at index: Int) {

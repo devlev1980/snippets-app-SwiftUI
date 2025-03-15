@@ -9,22 +9,29 @@ import SwiftUI
 
 struct TagInputView: View {
     @Binding var currentTag: String
-       var onAddTag: () -> Void
+    var onAddTag: () -> Void
        
-       var body: some View {
-           TextField(
-               "Press enter to add a new tag",
-               text: $currentTag,
-               onCommit: onAddTag // Triggers on Enter key press
-           )
-           .opacity(0.5)
-           .padding()
-           .overlay(
-               RoundedRectangle(cornerRadius: 10)
-                   .stroke(Color.gray, lineWidth: 0.3)
-           )
-           
-       }
+    var body: some View {
+        TextField(
+            "Press enter to add a new tag",
+            text: $currentTag,
+            onCommit: {
+                // First call the onAddTag function to add the tag
+                onAddTag()
+                
+                // Then ensure the text field is cleared immediately
+                DispatchQueue.main.async {
+                    currentTag = ""
+                }
+            }
+        )
+        .opacity(0.5)
+        .padding()
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.gray, lineWidth: 0.3)
+        )
+    }
 }
 
 #Preview {

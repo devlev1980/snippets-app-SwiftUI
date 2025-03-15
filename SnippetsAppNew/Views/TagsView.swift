@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import FirebaseCore
+import FirebaseFirestore
 
 struct TagsView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -14,14 +16,20 @@ struct TagsView: View {
     @State private var selectedTag: String? // Track the selected tag
     @State private var showColorPicker: Bool = false // Control the color picker sheet
     @State private var choosenColor: String? = "#FFFFFF" // Default color as a hex string
+    @State private var showDeleteAlert: Bool = false // Control the delete confirmation alert
+    @State private var tagToDelete: String? = nil // Track which tag to delete
+
     
     
     var textColor: Color {
         colorScheme == .light ? .black : .white
     }
     
+
+    
     var body: some View {
         NavigationStack {
+            
             ZStack {
                 // Indigo background with opacity 0.2 for the entire screen
                 Color.indigo
@@ -52,37 +60,47 @@ struct TagsView: View {
                             .foregroundColor(.gray)
                             .padding()
                     } else {
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(vm.filteredTags, id: \.self) { tag in
-                                    HStack(spacing: 5) {
-                                        Rectangle()
-                                            .fill(Color(hex: vm.getTagBackgroundColor(tag: tag) ?? "")?.opacity(0.5) ?? .clear)
-                                            .frame(width: 10)
-                                            .frame(maxHeight: .infinity)
-                                        
-                                        Text(tag)
-                                            .padding(.leading, 5)
-                                            .padding(.vertical, 12)
-                                        
-                                        Spacer()
-                                    }
-                                    .background(Color(UIColor.systemBackground))
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        selectedTag = tag
-                                        choosenColor = vm.getTagBackgroundColor(tag: tag) ?? "#FFFFFF"
-                                        showColorPicker = true
-                                    }
+                        List {
+                            ForEach(vm.filteredTags, id: \.self) { tag in
+                                HStack(spacing: 5) {
+                                    Rectangle()
+                                        .fill(Color(hex: vm.getTagBackgroundColor(tag: tag) ?? "")?.opacity(0.5) ?? .clear)
+                                        .frame(width: 10)
+                                        .frame(maxHeight: .infinity)
                                     
-                                    Divider()
+                                    Text(tag)
+                                        .padding(.leading, 5)
+                                        .padding(.vertical, 12)
+                                    
+                                    Spacer()
+                                }
+                                .listRowInsets(EdgeInsets())
+                                .listRowBackground(Color(UIColor.systemBackground))
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    selectedTag = tag
+                                    choosenColor = vm.getTagBackgroundColor(tag: tag) ?? "#FFFFFF"
+                                    showColorPicker = true
+                                }
+                            }
+                            .onDelete { indexSet in
+                                if let index = indexSet.first {
+                                    let tag = vm.filteredTags[index]
+                                    
+                                    // Directly delete the tag without the confirmation
+                                    // This will update the tags in all views including MySnippetsView and MySnippetDetailsView
+                                    vm.deleteTag(tag: tag)
                                 }
                             }
                         }
+                        .listStyle(PlainListStyle())
+                        .background(Color.clear)
+                        .environment(\.defaultMinListRowHeight, 0)
                     }
                 }
            
                 .searchable(text: $vm.searchText, prompt: "Search tags")
+                
             }
             .sheet(isPresented: $showColorPicker) {
                 let bindingColor = Binding<Color>(
@@ -113,6 +131,7 @@ struct TagsView: View {
                 }
                 .presentationDetents([.height(200)])
             }
+          
         }
     }
 }
