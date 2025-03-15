@@ -346,7 +346,6 @@ struct AddSnippetView: View {
                         
                         
                         Button {
-                            print("Add snippet")
                             isLoading = true
                             
                             onSaveSnippet()
@@ -354,6 +353,9 @@ struct AddSnippetView: View {
                             HStack {
                                 Text("Add snippet")
                                     .fontWeight(.bold)
+                                
+                               
+
                                 
                                 if isLoading {
                                     ProgressView()
@@ -385,8 +387,17 @@ struct AddSnippetView: View {
             
             
             .navigationTitle("Add Snippet")
+            
             .navigationBarBackButtonHidden(true)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.indigo)
+                }
+            }
         }
         .onAppear {
             // Load saved theme
@@ -461,7 +472,6 @@ struct AddSnippetView: View {
             tagBgColors: tagBgColors
         )
         
-        print("Snippet to add: \(newSnippet)")
         viewModel.addSnippet(snippet: newSnippet)
         if isChecked {
             viewModel.addFavorite(isFavorite: isChecked, snippet: newSnippet)

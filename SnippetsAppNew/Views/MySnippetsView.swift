@@ -122,7 +122,6 @@ struct MySnippetsView: View {
     
     // The delete function receives an IndexSet from the List and calls the view model.
     func delete(at offsets: IndexSet) {
-        print(offsets)
         vm.onDeleteSnippet(index: offsets)
     }
     

@@ -146,7 +146,6 @@ struct SignUpView: View {
                     }
                     
                     Button {
-                        print("Sign Up", fullName, email, password)
                         isLoading = true
                         onSignUpWithEmailPassword(email: email, password: password)
                     } label: {
@@ -202,7 +201,6 @@ struct SignUpView: View {
         authService.createUserInDB(withEmail: email, password: password) { authResult, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    print("Error creating user: \(error)")
                     self.showError = true
                     self.errorMessage = error.localizedDescription
                     self.isSignedUp = false
@@ -213,7 +211,6 @@ struct SignUpView: View {
                         self.showError = false
                     }
                 } else if let user = authResult?.user {
-                    print("User created successfully")
                     
                     // Create a change request to update the display name
                     let changeRequest = user.createProfileChangeRequest()
@@ -223,7 +220,6 @@ struct SignUpView: View {
                     changeRequest.commitChanges { error in
                         DispatchQueue.main.async {
                             if let error = error {
-                                print("Error updating display name: \(error)")
                                 self.showError = true
                                 self.errorMessage = error.localizedDescription
                                 
@@ -232,11 +228,11 @@ struct SignUpView: View {
                                     self.showError = false
                                 }
                             } else {
-                                print("Display name updated successfully")
+                                self.isLoading = false
+                                self.isSignedUp = true
+                                self.showError = false
                             }
-                            self.isLoading = false
-                            self.isSignedUp = true
-                            self.showError = false
+                         
                         }
                     }
                 }

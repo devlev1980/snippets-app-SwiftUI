@@ -84,7 +84,6 @@ struct SettingsView: View {
     func onSignOut() {
         do {
             try Auth.auth().signOut()
-            print("User signed out successfully")
             // With the auth state listener in MainView, navigation should happen automatically
             // But we'll keep this for backwards compatibility
             DispatchQueue.main.async {

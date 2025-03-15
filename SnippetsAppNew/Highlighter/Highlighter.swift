@@ -516,7 +516,6 @@ struct CodeEditorView: UIViewRepresentable {
         let themeToUse = theme ?? (colorScheme == .dark ? "monokai" : "xcode")
         
         // Debug print to verify theme changes
-        print("Applying theme: \(themeToUse) for language: \(language ?? "unknown")")
         
         // Force theme update by recreating the highlighter if theme changed
         if context.coordinator.currentTheme != themeToUse {
@@ -1014,21 +1013,21 @@ struct CodeView: View {
                     
                     // Theme preview
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Preview:")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+//                        Text("Preview:")
+//                            .font(.subheadline)
+//                            .foregroundColor(.secondary)
                         
-                        ThemePreviewView(
-                            theme: selectedTheme ?? (colorScheme == .dark ? "monokai" : "xcode"),
-                            language: language ?? "swift",
-                            code: code
-                        )
-                        .frame(height: 150)
-                        .cornerRadius(6)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
-                        )
+//                        ThemePreviewView(
+//                            theme: selectedTheme ?? (colorScheme == .dark ? "monokai" : "xcode"),
+//                            language: language ?? "swift",
+//                            code: code
+//                        )
+//                        .frame(height: 150)
+//                        .cornerRadius(6)
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 6)
+//                                .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
+//                        )
                     }
                     .padding(.top, 8)
                     

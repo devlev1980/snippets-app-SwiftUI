@@ -138,13 +138,12 @@ struct SignInView: View {
                     }
                     
                     // Remember credentials toggle
-                    Toggle("Remember my credentials", isOn: $rememberCredentials)
+                    Toggle("Remember me", isOn: $rememberCredentials)
                         .foregroundColor(.gray)
                         .font(.footnote)
                         .padding(.vertical, 5)
                     
                     Button {
-                        print("Sign In", fullName, email, password)
                         isLoading = true
                         onSignInWithEmailAndPassword(email: email, password: password)
                     } label: {
@@ -206,7 +205,6 @@ struct SignInView: View {
     func onSignInWithEmailAndPassword(email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             if let error = error {
-                print("Error signing in: \(error)")
                 showError = true
                 isLoading = false
                 errorMessage = error.localizedDescription
@@ -216,7 +214,6 @@ struct SignInView: View {
                     self.showError = false
                 }
             } else {
-                print("Signed in successfully")
                 // Save credentials for next login if user has opted in
                 if self.rememberCredentials {
                     UserCredentials.saveCredentials(email: email, password: password)
@@ -261,7 +258,6 @@ struct SignInView: View {
             isResetPasswordLoading = false
             
             if let error = error {
-                print("Error sending password reset: \(error)")
                 showError = true
                 errorMessage = error.localizedDescription
                 
@@ -270,7 +266,6 @@ struct SignInView: View {
                     self.showError = false
                 }
             } else {
-                print("Password reset email sent successfully")
                 showResetPasswordSuccess = true
                 
                 // Hide success message after 5 seconds
@@ -284,7 +279,6 @@ struct SignInView: View {
     func onSignInWithGoogle() {
             // Retrieve client ID from Firebase configuration
             guard let clientID = FirebaseApp.app()?.options.clientID else {
-                print("No client ID found")
                 return
             }
             
@@ -295,25 +289,21 @@ struct SignInView: View {
             // Retrieve the root view controller for presenting the sign-in UI
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let rootViewController = windowScene.windows.first?.rootViewController else {
-                print("Unable to get the root view controller")
                 return
             }
             
             // Start the sign-in flow using the updated API
             GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController, completion: { signInResult, error in
                 if let error = error {
-                    print("Google sign in error: \(error.localizedDescription)")
                     return
                 }
                 
                 guard let signInResult = signInResult else {
-                    print("No sign in result")
                     return
                 }
                 
                 // Retrieve the idToken and accessToken strings.
                 guard let idToken = signInResult.user.idToken?.tokenString else {
-                    print("Missing id token")
                     return
                 }
                 let accessToken = signInResult.user.accessToken.tokenString
@@ -325,7 +315,6 @@ struct SignInView: View {
                 // Sign in to Firebase with the credential.
                 Auth.auth().signIn(with: credential) { authResult, error in
                     if let error = error {
-                        print("Firebase sign in error: \(error.localizedDescription)")
                         errorMessage = error.localizedDescription
                         return
                     }

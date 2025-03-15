@@ -57,7 +57,6 @@ class SnippetsViewModel  {
         }
         
         guard let email = currentUser?.email else {
-            print("No user is signed in")
             self.errorMessage = "User not authenticated"
             self.isLoading = false
             return
@@ -72,20 +71,16 @@ class SnippetsViewModel  {
                     self.isLoading = false
                     if let error = error {
                         self.errorMessage = "Error fetching snippets: \(error.localizedDescription)"
-                        print("Firebase Error: \(error.localizedDescription)")
                         return
                     }
                     
                     guard let snapshot = snapshot else {
-                        print("Snapshot is nil")
                         return
                     }
                     
-                    print("Documents found: \(snapshot.documents.count)")
                     
                     self.snippets = snapshot.documents.compactMap { doc -> Snippet? in
                         let data = doc.data()
-                        print("Document Data: \(data)")
                         
                         
                         guard let name = data["name"] as? String,
@@ -96,7 +91,6 @@ class SnippetsViewModel  {
                               let code = data["code"] as? String,
                               let timestamp = data["timestamp"] as? Timestamp,
                               let tagBgColors = data["tagBgColors"] as? [String: String] else {
-                            print("Skipping document due to missing fields: \(doc.documentID)")
                             return nil
                         }
                         
@@ -122,10 +116,7 @@ class SnippetsViewModel  {
                         uniqueTags.formUnion(snippet.tags)
                     }
                     self.tags = Array(uniqueTags).sorted()
-                    
-                    print("Snippets loaded: \(self.snippets.count)")
-                    print("Favorite snippets loaded: \(self.favoriteSnippets.count)")
-                    print("Unique tags found: \(self.tags.count)")
+                 
                 }
             }
     }
@@ -160,13 +151,11 @@ class SnippetsViewModel  {
             DispatchQueue.main.async {
                 if let error = error {
                     self.errorMessage = "Error adding snippet: \(error.localizedDescription)"
-                    print("Error adding snippet: \(error.localizedDescription)")
                 } else {
                     // Create a new snippet with the document ID
                     var newSnippet = snippet
                     newSnippet.id = docRef.documentID
                     self.snippets.append(newSnippet)
-                    print("Snippet added successfully with ID: \(docRef.documentID)")
                     self.isLoading = false
                     self.didAddSnippet = true
                 }
@@ -177,13 +166,11 @@ class SnippetsViewModel  {
     func addFavorite(isFavorite: Bool, snippet: Snippet) {
         // First try to find the snippet in our local array to get the correct document ID
         guard let existingSnippet = snippets.first(where: { $0.name == snippet.name }) else {
-            print("Error: Snippet not found in local array")
             self.errorMessage = "Snippet not found in local array"
             return
         }
         
         guard let documentID = existingSnippet.id else {
-            print("Error: Snippet does not have a valid document ID.")
             self.errorMessage = "Snippet document ID missing."
             return
         }
@@ -208,10 +195,8 @@ class SnippetsViewModel  {
         
         db.collection("SnippetsDB").document(documentID).updateData(updatedData) { error in
             if let error = error {
-                print("Error updating snippet: \(error.localizedDescription)")
                 self.errorMessage = "Error updating snippet: \(error.localizedDescription)"
             } else {
-                print("Snippet updated successfully.")
                 // Update local arrays
                 if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
                     self.snippets[index].isFavorite = isFavorite
@@ -432,7 +417,6 @@ class SnippetsViewModel  {
     @MainActor
     func updateSnippetName(snippet: Snippet, newName: String) {
         guard let documentID = snippet.id else {
-            print("Error: Snippet does not have a valid document ID.")
             self.errorMessage = "Snippet document ID missing."
             return
         }
@@ -448,10 +432,8 @@ class SnippetsViewModel  {
             guard let self = self else { return }
             
             if let error = error {
-                print("Error updating snippet name: \(error.localizedDescription)")
                 self.errorMessage = "Error updating snippet name: \(error.localizedDescription)"
             } else {
-                print("Snippet name updated successfully.")
                 
                 // Update local arrays by creating new snippets with the updated name
                 if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
@@ -484,7 +466,6 @@ class SnippetsViewModel  {
     @MainActor
     func updateSnippetCode(snippet: Snippet, newCode: String) {
         guard let documentID = snippet.id else {
-            print("Error: Snippet does not have a valid document ID.")
             self.errorMessage = "Snippet document ID missing."
             return
         }
@@ -500,10 +481,8 @@ class SnippetsViewModel  {
             guard let self = self else { return }
             
             if let error = error {
-                print("Error updating snippet code: \(error.localizedDescription)")
                 self.errorMessage = "Error updating snippet code: \(error.localizedDescription)"
             } else {
-                print("Snippet code updated successfully.")
                 
                 // Update local arrays by creating new snippets with the updated code
                 if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {
@@ -536,7 +515,6 @@ class SnippetsViewModel  {
     @MainActor
     func updateSnippetDescription(snippet: Snippet, newDescription: String) {
         guard let documentID = snippet.id else {
-            print("Error: Snippet does not have a valid document ID.")
             self.errorMessage = "Snippet document ID missing."
             return
         }
@@ -552,10 +530,8 @@ class SnippetsViewModel  {
             guard let self = self else { return }
             
             if let error = error {
-                print("Error updating snippet description: \(error.localizedDescription)")
                 self.errorMessage = "Error updating snippet description: \(error.localizedDescription)"
             } else {
-                print("Snippet description updated successfully.")
                 
                 // Update local arrays by creating new snippets with the updated description
                 if let index = self.snippets.firstIndex(where: { $0.id == documentID }) {

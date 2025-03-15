@@ -12,7 +12,6 @@ public extension String {
         let pattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
         let predicate = NSPredicate(format: "SELF MATCHES %@", pattern)
         let result = predicate.evaluate(with: self)
-        print("Testing email: '\(self)' - Result: \(result)")  // Debug print
         return result
     }
 } 
