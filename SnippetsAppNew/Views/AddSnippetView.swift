@@ -37,7 +37,7 @@ struct AddSnippetView: View {
         UIDevice.current.userInterfaceIdiom == .pad
     }
     var isDisabled: Bool {
-        snippetTitle.isEmpty || snippetDescription.isEmpty || snippetTags.isEmpty || selectedLanguage.isEmpty || snippetCode.isEmpty
+        snippetTitle.isEmpty || snippetDescription.isEmpty || selectedLanguage.isEmpty || snippetCode.isEmpty
     }
     
     private func detectLanguage() {

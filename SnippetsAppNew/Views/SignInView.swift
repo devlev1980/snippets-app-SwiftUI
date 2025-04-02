@@ -177,7 +177,7 @@ struct SignInView: View {
                         Text("Don't have an account?")
                             .foregroundColor(.primary)
                         
-                        NavigationLink(destination:  SignUpView()  ) {
+                        NavigationLink(destination:  SignUpView(viewModel: viewModel )  ) {
                             Text("Sign up")
                                 .foregroundStyle(.indigo)
                         }

@@ -39,7 +39,7 @@ struct SignUpView: View {
     private let authService: AuthServiceProtocol
     
     // Test-specific initializer
-    init(email: String = "", fullName: String = "", password: String = "", authService: AuthServiceProtocol = Auth.auth()) {
+    init(email: String = "", fullName: String = "", password: String = "", authService: AuthServiceProtocol = Auth.auth(), viewModel: SnippetsViewModel) {
         _email = State(initialValue: email)
         _fullName = State(initialValue: fullName)
         _password = State(initialValue: password)
@@ -47,7 +47,7 @@ struct SignUpView: View {
         _isFullNameDirty = State(initialValue: !fullName.isEmpty)
         _isPasswordDirty = State(initialValue: !password.isEmpty)
         self.authService = authService
-        self.vm = .init()
+        self.vm = viewModel
     }
     
     var isValidEmail: Bool {
@@ -243,5 +243,5 @@ struct SignUpView: View {
 }
 
 #Preview {
-    SignUpView()
+    SignUpView(viewModel: .init())
 }

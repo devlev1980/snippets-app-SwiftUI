@@ -1,0 +1,177 @@
+SnippetsApp Testing Guide
+=======================
+
+1. Programming Language Detection Testing
+---------------------------------------
+
+TypeScript Detection:
+- Test with various TypeScript code snippets:
+  * Basic class:
+    class User {
+      age: number;
+      name: string;
+      constructor(age: number, name: string) {
+        this.age = age;
+        this.name = name;
+      }
+    }
+
+  * Interface:
+    interface Person {
+      name: string;
+      age: number;
+    }
+
+  * Type aliases:
+    type Point = {
+      x: number;
+      y: number;
+    }
+
+  * Generic types:
+    class Container<T> {
+      value: T;
+      constructor(value: T) {
+        this.value = value;
+      }
+    }
+
+JavaScript Detection:
+- Test with various JavaScript code snippets:
+  * Modern ES6+ code:
+    const user = {
+      name: 'John',
+      age: 30
+    };
+
+  * Async/await:
+    async function fetchData() {
+      const response = await fetch('api/data');
+      return response.json();
+    }
+
+  * Classes:
+    class Car {
+      constructor(brand) {
+        this.brand = brand;
+      }
+    }
+
+Other Languages:
+- Test with code snippets from other supported languages:
+  * Python
+  * Java
+  * C++
+  * Swift
+  * PHP
+  * Go
+  * Ruby
+  * SQL
+  * HTML
+  * CSS
+  * XML
+  * JSON
+  * YAML
+  * Bash
+
+2. Edge Cases to Test
+--------------------
+
+Mixed Content:
+- Test with files containing multiple languages
+- Test with code that has comments in different languages
+- Test with code that includes embedded languages (e.g., SQL within PHP)
+
+Special Characters:
+- Test with code containing:
+  * Unicode characters
+  * Special symbols
+  * Non-ASCII characters
+  * Emojis in comments
+  * Different types of quotes (single, double, backticks)
+
+File Formats:
+- Test with different file extensions
+- Test with files without extensions
+- Test with files with incorrect extensions
+
+3. Performance Testing
+---------------------
+
+Large Files:
+- Test with large code files (>1000 lines)
+- Test with multiple files open simultaneously
+- Test with very long lines of code
+
+Response Time:
+- Check if language detection is fast
+- Verify there's no UI lag when processing code
+- Test with rapid switching between different code snippets
+
+4. UI/UX Testing
+---------------
+
+Language Indicator:
+- Verify the language indicator is clearly visible
+- Check if it updates correctly when switching between files
+- Verify the language name is displayed correctly
+
+Error Handling:
+- Test with invalid code
+- Test with empty files
+- Test with corrupted files
+- Verify appropriate error messages are shown
+
+5. Device Testing
+---------------
+
+iOS Devices:
+- Test on different iOS devices:
+  * iPhone (various models)
+  * iPad (various models)
+  * Different iOS versions
+  * Different screen sizes
+
+Orientation:
+- Test in both portrait and landscape modes
+- Test with split-screen on iPad
+
+6. General App Testing
+---------------------
+
+App Launch:
+- Test cold start
+- Test background/foreground transitions
+- Test app termination and relaunch
+
+Data Persistence:
+- Verify saved snippets are preserved
+- Test app behavior after device restart
+- Test with low storage space
+
+Network:
+- Test with different network conditions:
+  * WiFi
+  * Cellular
+  * No network
+  * Poor network
+
+Bug Reporting Guidelines
+-----------------------
+
+When reporting issues, please include:
+1. Device model and iOS version
+2. Steps to reproduce the issue
+3. Screenshots or screen recordings
+4. The code snippet that caused the issue
+5. Expected behavior vs actual behavior
+6. Any error messages or logs
+
+Known Limitations
+----------------
+
+1. The language detection is based on pattern matching and may not be 100% accurate in all cases
+2. Some complex or mixed-language scenarios might be challenging to detect
+3. Very short code snippets might be difficult to classify accurately
+
+Please test thoroughly and report any issues you encounter. Your feedback is valuable for improving the app's accuracy and user experience. 
