@@ -74,22 +74,23 @@ class ProgrammingLanguageDetector {
     private func detectLanguageUsingPatterns(from code: String) -> String? {
         let code = code.lowercased()
         
-        // Check for CSS with enhanced detection
-        if isLikelyCSSCode(code) {
-            return "css"
-        }
-        
-        // Check for JavaScript/TypeScript with enhanced detection
+        // Check for JavaScript/TypeScript with enhanced detection FIRST
         if isLikelyJavaScriptOrTypeScriptCode(code) {
             // Further distinguish between JavaScript and TypeScript
-            if code.contains("interface ") || code.contains(": ") && code.contains("type ") || 
-               code.contains("<") && code.contains(">") && !code.contains("React.") ||
+            if code.contains(": number") || code.contains(": string") || code.contains(": boolean") ||
+               code.contains("interface ") || code.contains(": ") && code.contains("type ") || 
+               code.contains("<") && code.contains(">") && !code.contains("react.") ||
                code.contains("implements ") || code.contains("readonly ") || 
                code.contains("as ") && code.contains("type") || 
                code.contains("@") && code.contains("decorator") {
                 return "typescript"
             }
             return "javascript"
+        }
+        
+        // Check for CSS with enhanced detection
+        if isLikelyCSSCode(code) {
+            return "css"
         }
         
         // Check for PHP with enhanced detection

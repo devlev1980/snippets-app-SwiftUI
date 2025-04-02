@@ -1,0 +1,114 @@
+Privacy Policy for SnippetsApp
+
+Last updated: March 2024
+
+Introduction
+
+SnippetsApp ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our iOS application for managing code snippets.
+
+Information We Collect
+
+1. Account Information
+- Email address
+- Display name (optional)
+- Authentication data (managed securely through Firebase Authentication)
+
+2. User Content
+- Code snippets
+- Snippet descriptions
+- Tags and tag colors
+- Favorite snippets
+- Timestamps of creation and modifications
+
+3. Usage Data
+- App preferences
+- Theme settings
+- Language preferences
+- Search history within the app
+
+How We Use Your Information
+
+1. Account Management
+- To create and manage your account
+- To authenticate your identity
+- To provide account recovery services
+
+2. App Functionality
+- To store and manage your code snippets
+- To organize snippets with tags
+- To enable favorite snippet functionality
+- To provide search and filtering capabilities
+
+3. Data Storage
+- Your data is stored securely in Firebase
+- Snippets are associated with your account and are private to you
+- We do not share your snippets with other users
+
+Data Security
+
+1. Authentication
+- We use Firebase Authentication for secure user authentication
+- Passwords are hashed and never stored in plain text
+- Two-factor authentication is supported through Google Sign-In
+
+2. Data Protection
+- All data is encrypted in transit and at rest
+- Access to your data is restricted to your account only
+- We implement industry-standard security measures to protect your information
+
+Third-Party Services
+
+1. Firebase
+- We use Firebase for:
+  - Authentication
+  - Data storage
+  - Real-time database functionality
+
+2. Google Sign-In
+- We offer Google Sign-In as an authentication option
+- This service is governed by Google's Privacy Policy
+
+Your Rights
+
+1. Data Access
+- You can access your snippets and account information through the app
+- You can export your snippets at any time
+
+2. Data Deletion
+- You can delete your account and all associated data
+- Deletion requests will be processed within 30 days
+
+3. Data Correction
+- You can update your account information
+- You can modify or delete your snippets at any time
+
+Children's Privacy
+
+Our app is not intended for children under 13. We do not knowingly collect personal information from children under 13.
+
+Changes to This Policy
+
+We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.
+
+Contact Us
+
+If you have any questions about this Privacy Policy, please contact us at:
+[Your Contact Information]
+
+California Privacy Rights
+
+For California residents:
+- We do not sell your personal information
+- We do not share your personal information with third parties for marketing purposes
+- You have the right to know what personal information we collect and how we use it
+
+International Users
+
+By using our app, you consent to the transfer of your information to the United States and its processing in the United States.
+
+Compliance
+
+We comply with:
+- General Data Protection Regulation (GDPR)
+- California Consumer Privacy Act (CCPA)
+- App Store Privacy Guidelines 
