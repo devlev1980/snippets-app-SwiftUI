@@ -78,6 +78,7 @@ struct AddSnippetView: View {
                         
                         Text("Description")
                         TextFieldView(placeholder: "Description", text: $snippetDescription)
+                            
                         
                         
                         Text("Tags")
@@ -237,7 +238,7 @@ struct AddSnippetView: View {
     }
     
     func addTag() {
-        let trimmedTag = currentTag.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedTag = currentTag.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         
         if !trimmedTag.isEmpty {
             snippetTags.append(trimmedTag)
